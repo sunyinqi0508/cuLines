@@ -7,6 +7,9 @@
 #include <stdint.h>
 
 #include <unordered_map>
+#include <map>
+#include <set>
+#include <list>
 #include <random>
 #include <algorithm>
 #include <iostream>
@@ -28,7 +31,7 @@ protected:
 	vector<int32_t> *buckets;
 	float b_, w_;
 	unsigned char* _h;
-
+	int _n_buckets;
 public:
 
 	LshFunc() = default;
@@ -37,12 +40,16 @@ public:
 		return _h[i];
 	}
 	inline float operator() (const Vector3 &x) const {
-		return (x.dot(a_) + b_) / w_;
+		return static_cast<int>(__macro_bound(
+			(x.dot(a_) + b_) / w_,0, _n_buckets
+		));
 	}
 
 	inline float operator() (Segment *seg) const {
 		return (*this)(seg->centroid);
 	}
+
+	inline const int& get_n_buckets() const { return _n_buckets; }
 	~LshFunc() {
 		delete[] buckets;
 		delete[] _h;
@@ -59,13 +66,13 @@ public:
 		const float avg_size = (float)n_samples / (float)n_buckets;
 		int bestfunc = -1;
 		float min_variation = numeric_limits<float>::max();
-
+		
 		for (int i = 0; i < n; i++)
 		{
 			LshFunc curr_func;
 			curr_func.buckets = new vector<int32_t>[n_buckets];
 			curr_func.h = new unsigned char[n_buckets];
-
+			curr_func._n_buckets = n_buckets;
 			fn.push_back(curr_func);
 			float variation = 0;
 			do {
@@ -89,7 +96,7 @@ public:
 				fn[i].b_ = uni_dist(engine);
 				for (int j = 0; j < n_samples; j++)
 					fn[i].buckets
-					[__macro_bound(static_cast<int>(fn[i](samples[j])), 0, n_buckets - 1)].
+					[((fn[i](samples[j])))].
 					push_back(j);
 				for (int j = 0; j < n_buckets; j++)
 					if (fn[i].buckets[j].size() < avg_size)
@@ -107,7 +114,7 @@ public:
 					projections[_sample] = j;
 		}
 		 
-		return make_pair(fn,bestfunc);
+		return make_pair(fn, bestfunc);
 	}
 };
 
@@ -116,32 +123,30 @@ class HashTable {
 public:
 	
 	struct LSHPoint {
-		int64_t fingerprint2;
 		vector<int> ptr_segments;
-		LSHPoint(int ptr_segment, int64_t fingerprint2) :
-			fingerprint2(fingerprint2), ptr_segments() {
+		LSHPoint(int ptr_segment) :
+			ptr_segments() {
 			ptr_segments.push_back(ptr_segment);
 		}
 	};
-
+	
 	int tablesize;
 	vector<int> LSHFunctions;//indices of lsh functions
 	vector<int> r1, r2;
 	vector<LshFunc> *function_pool;
 	random_device rd{};
 	mt19937_64 engine{ rd() };
-	vector<LSHPoint *>* lshTable;
+	unordered_map<int64_t, LSHPoint *>* lshTable;
 	HashTable(vector<int>LSHFunctions, int tablesize, vector<LshFunc> *function_pool, Segment *samples, int n_samples) 
 		: LSHFunctions(LSHFunctions), tablesize(tablesize), function_pool(function_pool)
 	{
-		lshTable = new vector<LSHPoint*>[tablesize];
-
+		lshTable = new unordered_map<int64_t, LSHPoint*>[tablesize];
 		std::uniform_int_distribution<int> uni_intdist{};
 		for (int funcidx : LSHFunctions) {
 			r1.push_back(uni_intdist(engine));
 			r2.push_back(uni_intdist(engine));
 		}
-		for (int i = 0; i < n_samples; i++) {
+		for (int i = 0; i < n_samples; i++) {//i -> ptr to segment
 			
 			int64_t fingerprint1 = 0, fingerprint2 = 0;
 			for (int j = 0; j < LSHFunctions.size(); j++) {
@@ -159,15 +164,59 @@ public:
 
 			fingerprint1 %= tablesize;
 			fingerprint2 %= Prime;
-			
-			lshTable[fingerprint1].push_back(new LSHPoint(i, fingerprint2));
+			if (lshTable[fingerprint1].find(fingerprint1) != lshTable[fingerprint1].end()) {
+				lshTable[fingerprint1][fingerprint2] = new LSHPoint(i);
+			}
+			else {
+				lshTable[fingerprint1][fingerprint2]->ptr_segments.push_back(i);
+			}
 
 		}
 	}
 
-	void Query() {
+	void Query(vector<int>& results, Vector3 point) {
+		int64_t fingerprint1 = 0, fingerprint2 = 0;
+		unordered_map<int, int> res;
 
+		for (int j = 0; j < LSHFunctions.size(); j++) {
+			const LshFunc curr_func = (*function_pool)[LSHFunctions[j]];
+			const int n_buckets = curr_func.get_n_buckets();
+			const int64_t tmp_fp1 = r1[j] * curr_func(point);
+			const int64_t tmp_fp2 = r2[j] * curr_func(point);
+
+			fingerprint1 += (tmp_fp1 >> 32) ? ((tmp_fp1 >> 32) + 5) : tmp_fp1;
+			fingerprint2 += (tmp_fp2 >> 32) ? ((tmp_fp2 >> 32) + 5) : tmp_fp2;
+
+			fingerprint1 = (fingerprint1 >> 32) ? ((fingerprint1 >> 32) + 5) : fingerprint1;
+			fingerprint2 = (fingerprint2 >> 32) ? ((fingerprint2 >> 32) + 5) : fingerprint2;
+
+
+		}
+		fingerprint1 %= tablesize;
+		fingerprint2 %= Prime;
+		for (int resultint_pt : lshTable[fingerprint1][fingerprint2]->ptr_segments) {
+			const Segment this_seg = segments[resultint_pt];
+			unordered_map<int, int>::iterator findings = res.find(this_seg.line);
+			
+			if (findings != res.end()) {
+				int& curr_seg = findings->second;
+				if ((point - this_seg.centroid).length() < (point - segments[curr_seg].centroid).length) {
+					curr_seg = resultint_pt;
+				}
+			}
+			else
+				res[this_seg.line] = resultint_pt;
+		}
+		unordered_map<int, int>::iterator it = res.begin();
+
+		while (it != res.end()) {
+			results.push_back(it->second);
+			it++;
+		}
+	
 	}
+
+
 };
 void segGlobal(float penalty = 0) {
 	printf("%d\n", n_points);
@@ -241,10 +290,9 @@ void decomposeByCurvature(float crv_thresh, float len_thresh) {
 			_dx1 = (_delta_x1 + _delta_x2) / (_delta_x1.length() + _delta_x2.length());//grad(x(curve), y(curve), z(curve)) by curve
 		Vector3 _ddx = (_dx1 - _dx_1)/ (_delta_x_1.length() + _delta_x1.length());
 		//_ddx = (_ddx / _dx.x)*_dx.x + (_ddx) + ( _ddx);
-		const float cur = (_ddx).length();//|r''(curve)|_2
 		int j = 0;
 		for(; j < 3; j++)
-			curvature[j] = cur;
+			curvature[j] = (_ddx).length();
 		for (; j < _size - 2; j++) {
 			_dx_1 = _dx;
 			_dx = _dx1;
@@ -297,8 +345,8 @@ int main() {
 	//FILEIO::normalize();
 	FILEIO::toFStreamlines();
 	decomposeByCurvature(M_PI, 1000.f);
-	vector<LshFunc> funcs = LshFunc::create(32, segments.data(), segments.size(), 5);
-	for (const LshFunc& func : funcs) {
+	pair<vector<LshFunc>, int> funcs = LshFunc::create(32, segments.data(), segments.size(), 5);
+	for (const LshFunc& func : funcs.first) {
 
 	}
 	
