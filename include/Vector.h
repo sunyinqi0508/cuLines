@@ -4,30 +4,30 @@
 #include <math.h>
 #include <functional>
 
-#define OP(OPERAND)	inline Vector3 operator OPERAND(const Vector3& v) const {\
+#define OP(OPERATOR)	inline Vector3 operator OPERATOR(const Vector3& v) const {\
 		Vector3 res;\
-		res.x = x OPERAND v.x;\
-		res.y = y OPERAND v.y;\
-		res.z = z OPERAND v.z;\
+		res.x = x OPERATOR v.x;\
+		res.y = y OPERATOR v.y;\
+		res.z = z OPERATOR v.z;\
 		return res;\
 	}\
-	inline Vector3 operator OPERAND(const float v) const {\
+	inline Vector3 operator OPERATOR(const float v) const {\
 		Vector3 res; \
-		res.x = x OPERAND v; \
-		res.y = y OPERAND v; \
-		res.z = z OPERAND v; \
+		res.x = x OPERATOR v; \
+		res.y = y OPERATOR v; \
+		res.z = z OPERATOR v; \
 		return res; \
 	}
-#define OPEQ(OPERAND)	inline Vector3 operator OPERAND(const Vector3& v) {\
-		x OPERAND v.x;\
-		y OPERAND v.y;\
-		z OPERAND v.z;\
+#define OPEQ(OPERATOR)	inline Vector3 operator OPERATOR(const Vector3& v) {\
+		x OPERATOR v.x;\
+		y OPERATOR v.y;\
+		z OPERATOR v.z;\
 		return *this;\
 	}\
-	inline Vector3 operator OPERAND(const float v) {\
-			x OPERAND v; \
-			y OPERAND v; \
-			z OPERAND v; \
+	inline Vector3 operator OPERATOR(const float v) {\
+			x OPERATOR v; \
+			y OPERATOR v; \
+			z OPERATOR v; \
 			return *this; \
 	}
 
@@ -39,8 +39,8 @@
 class Vector3 {
 public:
 	Vector3() = default;
-	Vector3(float s) : x(s), y(s), z(s) {}
-	Vector3(float x, float y, float z) 
+	constexpr Vector3(float s) noexcept : x(s), y(s), z(s) {}
+	constexpr Vector3(float x, float y, float z) noexcept
 		:x(x), y(y), z(z) {}
 	
 	inline operator float*() { return (float*)this; }

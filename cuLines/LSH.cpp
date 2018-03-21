@@ -1,9 +1,11 @@
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
-#include "cuLines.h"
+//#include "cuda_runtime.h"
+//#include "device_launch_parameters.h"
+#include "LSH.h"
 #include "FileIO.h"
 #include "Vector.h"
 #include "Common.h"
+#include "cuStubs.cuh"
+#include "Segmentation.h"
 #include <stdint.h>
 
 #include <unordered_map>
@@ -17,12 +19,7 @@
 using namespace std;
 using namespace FILEIO;
 typedef Vector3 Vector;
-
-
-
-#define __macro_min(a,b) ((a)<(b)?(a):(b))
-#define __macro_max(a,b) ((a)>(b)?(a):(b))
-#define __macro_bound(x, a, b) ((x) > (a) ? ((x) < (b) ? (x):(b)):(a))
+constexpr int64_t Prime = (1ll << 32) - 5;
 
 class LshFunc {
 
@@ -39,18 +36,21 @@ public:
 	inline unsigned char& h(int i) {
 		return _h[i];
 	}
-	inline float operator() (const Vector3 &x) const {
+	inline int operator() (const Vector3 &x) const {
 		return static_cast<int>(__macro_bound(
-			(x.dot(a_) + b_) / w_,0, _n_buckets
+			(x.dot(a_) + b_) / w_,0, _n_buckets - 1
 		));
 	}
 
-	inline float operator() (Segment *seg) const {
+	inline int operator() (Segment *seg) const {
 		return (*this)(seg->centroid);
 	}
 
 	inline const int& get_n_buckets() const { return _n_buckets; }
 	~LshFunc() {
+	}
+	
+	void deinit() {
 		delete[] buckets;
 		delete[] _h;
 	}
@@ -61,7 +61,7 @@ public:
 		std::normal_distribution<float> gauss_dist{ 0, 1. };
 		
 		std::vector<LshFunc> fn;
-
+		
 		float *projections = new float[n_samples];
 		const float avg_size = (float)n_samples / (float)n_buckets;
 		int bestfunc = -1;
@@ -71,7 +71,7 @@ public:
 		{
 			LshFunc curr_func;
 			curr_func.buckets = new vector<int32_t>[n_buckets];
-			curr_func.h = new unsigned char[n_buckets];
+			curr_func._h = new unsigned char[n_buckets];
 			curr_func._n_buckets = n_buckets;
 			fn.push_back(curr_func);
 			float variation = 0;
@@ -96,13 +96,14 @@ public:
 				fn[i].b_ = uni_dist(engine);
 				for (int j = 0; j < n_samples; j++)
 					fn[i].buckets
-					[((fn[i](samples[j])))].
+					[fn[i]( samples + j )].
 					push_back(j);
 				for (int j = 0; j < n_buckets; j++)
 					if (fn[i].buckets[j].size() < avg_size)
 						variation += avg_size - fn[i].buckets[j].size();//l2 norm might be better choice;
-
-			} while (variation > (n_samples)/10.f);//Todo: determining efficiency of hash function
+				static int hit = 0;
+				hit++;
+			} while (variation > (n_samples)/3.f);//Todo: determining efficiency of hash function
 			
 			if (variation < min_variation) {
 				min_variation = variation;
@@ -118,7 +119,6 @@ public:
 	}
 };
 
-const int64_t Prime = (1 << 32) - 5;
 class HashTable {
 public:
 	
@@ -175,6 +175,7 @@ public:
 	}
 
 	void Query(vector<int>& results, Vector3 point) {
+
 		int64_t fingerprint1 = 0, fingerprint2 = 0;
 		unordered_map<int, int> res;
 
@@ -200,7 +201,7 @@ public:
 			
 			if (findings != res.end()) {
 				int& curr_seg = findings->second;
-				if ((point - this_seg.centroid).length() < (point - segments[curr_seg].centroid).length) {
+				if ((point - this_seg.centroid).length() < (point - segments[curr_seg].centroid).length()) {
 					curr_seg = resultint_pt;
 				}
 			}
@@ -218,121 +219,6 @@ public:
 
 
 };
-void segGlobal(float penalty = 0) {
-	printf("%d\n", n_points);
-	float *f = new float[Streamline::max_size()];
-	int *ll_f = new int[Streamline::max_size()];
-	for (int i = 0; i < n_streamlines; i++) {
-		f[0] = 0;
-		ll_f[0] = 0;
-		for (int j = 1; j < Streamline::size(i); j++) {
-			f[j] = numeric_limits<float>::max();
-			for (int k = 0; k < j; k++) {
-				Vector3 mean = 0;
-				;
-				float distqrs = 0;
-
-				for (int l = k + 1; l <= j; l++)
-					mean += f_streamlines[i][j];
-				mean /= (j - k );
-				for (int l = k + 1; l <= j; l++)
-					distqrs += (f_streamlines[i][l] - mean).sq();
-				distqrs /= (float)(j - k );
-				if (f[k] + distqrs + penalty < f[j])
-				{
-					f[j] = f[k] + distqrs + penalty;
-					ll_f[j] = k;
-				}
-
-			}
-		}
-		
-		vector<Segment> currsegs;
-		int j = Streamline::size(i) - 1;
-
-		while (j > 0) {
-			currsegs.push_back(Segment(i, ll_f[j], j));
-			j = ll_f[j];
-		}
-		
-		for (Segment seg : currsegs)
-			segments.push_back(seg);
-
-	}
-	delete[] f;
-	delete[] ll_f;
-}
-//#pragma optimize("", on)
-
-void decomposeByCurvature(float crv_thresh, float len_thresh) {
-	// the first derivative
-	float *curvature;
-	curvature = new float[Streamline::max_size()];
-
-
-	for (int i = 0; i < n_streamlines; i++) {
-		size_t begin = 0;
-		float tac_sum = 0.f, len_sum = 0.f;
-
-		int _size = Streamline::size(i);
-		if (_size < 5)
-		{
-			segments.push_back(Segment(i, 0, _size));
-			continue;
-		}
-		const Vector3 _delta_x_2 = (f_streamlines[i][1] - f_streamlines[i][0]);
-		Vector3 _delta_x_1 = (f_streamlines[i][2] - f_streamlines[i][1]);
-		Vector3 _delta_x1 = (f_streamlines[i][3] - f_streamlines[i][2]);
-		Vector3 _delta_x2 = (f_streamlines[i][4] - f_streamlines[i][3]);
-
-		Vector3 _dx_1 = (_delta_x_2 + _delta_x_1) / (_delta_x_2.length() + _delta_x_1.length()),
-			_dx = (_delta_x_1 + _delta_x1) / (_delta_x_1.length() + _delta_x1.length()),
-			_dx1 = (_delta_x1 + _delta_x2) / (_delta_x1.length() + _delta_x2.length());//grad(x(curve), y(curve), z(curve)) by curve
-		Vector3 _ddx = (_dx1 - _dx_1)/ (_delta_x_1.length() + _delta_x1.length());
-		//_ddx = (_ddx / _dx.x)*_dx.x + (_ddx) + ( _ddx);
-		int j = 0;
-		for(; j < 3; j++)
-			curvature[j] = (_ddx).length();
-		for (; j < _size - 2; j++) {
-			_dx_1 = _dx;
-			_dx = _dx1;
-			_delta_x_1 = _delta_x1;
-			_delta_x1 = _delta_x2;
-			_delta_x2 = (f_streamlines[i][j + 2] - f_streamlines[i][j + 1]);
-			_dx1 = (_delta_x2 + _delta_x1) / (_delta_x2.length() + _delta_x1.length());
-			
-			_ddx = (_dx1 - _dx_1)/(_delta_x_1.length() + _delta_x1.length());
-			//_ddx = (_ddx / _dx.x)*(_dx.x) + (_ddx / _dx.y)*_dx.y + (_ddx / _dx.z)*_dx.z;
-
-			curvature[j] = (_ddx).length();// / cubic(_dx.length());
-		}
-		for (; j < _size; j++)
-			curvature[j] = curvature[j - 1];
-
-		for (size_t end = 1; end < _size - 1; end++) {
-			float len = (f_streamlines[i][end + 1] - f_streamlines[i][end - 1])/2.f;
-			float tac = curvature[end] * len;
-			if ((tac_sum + tac > crv_thresh || len_sum + len > len_thresh)) {
-				Segment seg = Segment(i,begin,end + 1);
-				segments.emplace_back(seg);
-				tac_sum = len_sum = 0.f;
-				begin = end;
-			}
-			else {
-				tac_sum += tac;
-				len_sum += len;
-			}
-		}
-		// finalize the last segment (if unfinished)
-		if (segments.empty() || segments.back().end != _size) {
-			Segment seg = Segment(i,begin,_size);
-			segments.emplace_back(seg);
-		}
-
-	}
-
-}
-
 
 void arrangement(int n_buckets, int n_tuple, int* buckets) {
 	float* x = new float[n_buckets];
@@ -341,10 +227,10 @@ void arrangement(int n_buckets, int n_tuple, int* buckets) {
 
 int main() {
 
-	LoadWaveFrontObject("d:/flow_data/tornado_reduced.obj");
+	LoadWaveFrontObject("d:/flow_data/wall-mounted-10k.obj");
 	//FILEIO::normalize();
 	FILEIO::toFStreamlines();
-	decomposeByCurvature(M_PI, 1000.f);
+	decomposeByCurvature(2*M_PI, 1000.f);
 	pair<vector<LshFunc>, int> funcs = LshFunc::create(32, segments.data(), segments.size(), 5);
 	for (const LshFunc& func : funcs.first) {
 
