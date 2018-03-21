@@ -22,7 +22,7 @@ class SegmentPointLookupTable {
     float min_, max_, width_;
     int *slots_, n_slots_;
 public:
-    SegmentPointLookupTable(int seg_idx);
+    explicit SegmentPointLookupTable(int seg_idx);
 
     ~SegmentPointLookupTable() {
         delete[] slots_;
@@ -33,6 +33,7 @@ public:
 
 extern void segGlobal(float penalty = 0);
 extern void decomposeByCurvature(float, float);
+extern void initializeSecondLevel();
 
 extern std::vector<Segment> segments;
 extern std::vector<SegmentPointLookupTable> second_level;
