@@ -16,10 +16,26 @@ public:
 	operator Vector3();
 };
 
+class SegmentPointLookupTable {
+    Segment *seg_;
+    Vector3 target_;
+    float min_, max_, width_;
+    int *slots_, n_slots_;
+public:
+    SegmentPointLookupTable(int seg_idx);
+
+    ~SegmentPointLookupTable() {
+        delete[] slots_;
+    }
+
+    int nearest(const Vector3 &v) const;
+};
+
 extern void segGlobal(float penalty = 0);
 extern void decomposeByCurvature(float, float);
 
 extern std::vector<Segment> segments;
+extern std::vector<SegmentPointLookupTable> second_level;
 
 
 #endif
