@@ -373,6 +373,9 @@ namespace FILEIO {
 			delete[] sizes;
 		sizes = new int[n_streamlines];
 		std::fill(sizes, sizes + n_streamlines - 1, -1);
+		for (size_t i = 0; i < n_streamlines - 1; i++) {
+			sizes[i] = f_streamlines[i + 1] - f_streamlines[i];
+		}
 		sizes[n_streamlines - 1] = n_points - (f_streamlines[n_streamlines - 1] - f_streamlines[0]);
 		availiblity_flag |= AvailFlags(Format::STREAMLINE_ARRAY);
 	}

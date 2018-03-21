@@ -24,7 +24,7 @@ Segment::Segment(size_t line, int begin, int end):
 	end_point += move;
 }
 
-Segment::operator Vector3(){
+Segment::operator const Vector3&(){
 	return centroid;
 }
 
@@ -77,7 +77,7 @@ void segGlobal(float penalty) {
 //#pragma optimize("", on)
 
 void decomposeByCurvature(float crv_thresh, float len_thresh) {
-	// the first derivative
+	
 	float *curvature;
 	curvature = new float[Streamline::max_size()];
 
@@ -140,18 +140,20 @@ void decomposeByCurvature(float crv_thresh, float len_thresh) {
 			segments.emplace_back(i, begin, _size);
 		}
 	}
+
+	delete[] curvature;
 }
 
 SegmentPointLookupTable::SegmentPointLookupTable(int seg_idx) :
-    seg_{ &segments[seg_idx] }
+    seg_{ segments[seg_idx] }
 {
     // data member initialization
-    target_ = seg_->end_point - seg_->start_point;
+    target_ = seg_.end_point - seg_.start_point;
     // compute projections
     std::vector<std::pair<float, int>> proj_vals;
-    proj_vals.reserve(seg_->cnt);
-    for (int i = seg_->begin; i < seg_->end; i++) {
-        proj_vals.emplace_back((f_streamlines[seg_->line][i] - seg_->start_point).project(target_), i);
+    proj_vals.reserve(seg_.cnt);
+    for (int i = seg_.begin; i < seg_.end; i++) {
+        proj_vals.emplace_back((f_streamlines[seg_.line][i] - seg_.start_point).project(target_), i);
     }
     std::sort(begin(proj_vals), end(proj_vals));
     // create mapping slots
@@ -181,7 +183,7 @@ SegmentPointLookupTable::SegmentPointLookupTable(int seg_idx) :
 static const float EPSILON = 1e-7;
 
 int SegmentPointLookupTable::nearest(const Vector3 &v) const {
-    auto p = (v - seg_->start_point).project(target_);
+    auto p = (v - seg_.start_point).project(target_);
     if (p - min_ < EPSILON)
         return slots_[0];
     if (max_ - p < EPSILON)
@@ -189,3 +191,4 @@ int SegmentPointLookupTable::nearest(const Vector3 &v) const {
     return slots_[static_cast<int>(std::floor((p - min_) / width_))];
 }
 
+std::vector<SegmentPointLookupTable> second_level;

@@ -55,12 +55,12 @@ public:
 		delete[] _h;
 	}
 
-	static pair<std::vector<LshFunc>, int> create(int n, Segment* samples, size_t n_samples, int n_buckets) {
+	static pair<std::vector<LshFunc>*, int> create(int n, Segment* samples, size_t n_samples, int n_buckets) {
 
 
 		std::normal_distribution<float> gauss_dist{ 0, 1. };
 		
-		std::vector<LshFunc> fn;
+		std::vector<LshFunc>* fn = new vector<LshFunc>;
 		
 		float *projections = new float[n_samples];
 		const float avg_size = (float)n_samples / (float)n_buckets;
@@ -73,34 +73,34 @@ public:
 			curr_func.buckets = new vector<int32_t>[n_buckets];
 			curr_func._h = new unsigned char[n_buckets];
 			curr_func._n_buckets = n_buckets;
-			fn.push_back(curr_func);
+			fn->push_back(curr_func);
 			float variation = 0;
 			do {
 				variation = 0;
 				for (int j = 0; j < n_buckets; j++)
-					fn[i].buckets[j].clear();
+					(*fn)[i].buckets[j].clear();
 				Vector3 a(gauss_dist(engine), gauss_dist(engine), gauss_dist(engine));
-				fn[i].a_ = a;
+				(*fn)[i].a_ = a;
 
 				float _min = numeric_limits<float>::max(), _interval = numeric_limits<float> ::min();
 				for (int j = 0; j < n_samples; j++) {
-					projections[j] = fn[i].a_.dot(samples[j].centroid);
+					projections[j] = (*fn)[i].a_.dot(samples[j].centroid);
 					_min = __macro_min(_min, projections[j]);
 					_interval = __macro_max(_interval, projections[j]);
 				}
 
 				_interval -= _min;
 				const float _div = _interval / n_buckets;
-				fn[i].w_ = _div;
+				(*fn)[i].w_ = _div;
 				std::uniform_real_distribution<float> uni_dist{ 0, _div };
-				fn[i].b_ = uni_dist(engine);
+				(*fn)[i].b_ = uni_dist(engine);
 				for (int j = 0; j < n_samples; j++)
-					fn[i].buckets
-					[fn[i]( samples + j )].
+					(*fn)[i].buckets
+					[(*fn)[i]( samples + j )].
 					push_back(j);
 				for (int j = 0; j < n_buckets; j++)
-					if (fn[i].buckets[j].size() < avg_size)
-						variation += avg_size - fn[i].buckets[j].size();//l2 norm might be better choice;
+					if ((*fn)[i].buckets[j].size() < avg_size)
+						variation += avg_size - (*fn)[i].buckets[j].size();//l2 norm might be better choice;
 				static int hit = 0;
 				hit++;
 			} while (variation > (n_samples)/3.f);//Todo: determining efficiency of hash function
@@ -111,7 +111,7 @@ public:
 			}
 
 			for(int j =0;j < n_buckets; j++)
-				for (int _sample : fn[i].buckets[j]) 
+				for (int _sample : (*fn)[i].buckets[j])
 					projections[_sample] = j;
 		}
 		 
@@ -242,7 +242,7 @@ void arrangement(int n_buckets, int n_tuple, int* buckets) {
 	float* x = new float[n_buckets];
 
 }
-
+vector<HashTable> hashtables;
 constexpr int funcpool_size = 32, L = 5, K = 4, TABLESIZE = 100;
 int main() {
 
@@ -250,7 +250,7 @@ int main() {
 	//FILEIO::normalize();
 	FILEIO::toFStreamlines();
 	decomposeByCurvature(2*M_PI, 1000.f);
-	pair<vector<LshFunc>, int> funcs = LshFunc::create(funcpool_size, segments.data(), segments.size(), 5);
+	pair<vector<LshFunc>*, int> funcs = LshFunc::create(funcpool_size, segments.data(), segments.size(), 5);
 
 	//stocastic table construction
 	uniform_int_distribution<int> uni_dist{ 0, funcpool_size - 1};
@@ -260,7 +260,7 @@ int main() {
 		for (int k = 0; k < K; k++) 
 			func_for_table.push_back(uni_dist(engine));
 
-		HashTable(func_for_table, TABLESIZE, &funcs.first, segments.data(), segments.size());
+		hashtables.push_back(HashTable(func_for_table, TABLESIZE, funcs.first, segments.data(), segments.size()));
 
 	}
 

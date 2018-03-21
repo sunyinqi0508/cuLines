@@ -13,11 +13,11 @@ public:
 	Vector3 start_point, end_point;
 	Segment(size_t line, int begin, int end);
 
-	operator Vector3();
+	operator const Vector3&();
 };
 
 class SegmentPointLookupTable {
-    Segment *seg_;
+    const Segment &seg_;
     Vector3 target_;
     float min_, max_, width_;
     int *slots_, n_slots_;
