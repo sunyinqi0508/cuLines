@@ -1,6 +1,8 @@
 #include "Segmentation.h"
 #include "FileIO.h"
 
+#include <algorithm>
+
 using namespace std;
 using namespace FILEIO;
 
@@ -135,11 +137,55 @@ void decomposeByCurvature(float crv_thresh, float len_thresh) {
 		}
 		// finalize the last segment (if unfinished)
 		if (segments.empty() || segments.back().end != _size) {
-			Segment seg = Segment(i, begin, _size);
-			segments.emplace_back(seg);
+			segments.emplace_back(i, begin, _size);
 		}
-
 	}
+}
 
+SegmentPointLookupTable::SegmentPointLookupTable(int seg_idx) :
+    seg_{ &segments[seg_idx] }
+{
+    // data member initialization
+    target_ = seg_->end_point - seg_->start_point;
+    // compute projections
+    std::vector<std::pair<float, int>> proj_vals;
+    proj_vals.reserve(seg_->cnt);
+    for (int i = seg_->begin; i < seg_->end; i++) {
+        proj_vals.emplace_back((f_streamlines[seg_->line][i] - seg_->start_point).project(target_), i);
+    }
+    std::sort(begin(proj_vals), end(proj_vals));
+    // create mapping slots
+    n_slots_ = static_cast<int>(proj_vals.size() * 5);
+    slots_ = new int[n_slots_];
+    // min, max and width
+    min_ = proj_vals.front().first;
+    max_ = proj_vals.back().first;
+    width_ = (max_ - min_) / static_cast<float>(n_slots_);
+    // middle points
+    int fill_begin = 0;
+    for (std::size_t i = 1; i < proj_vals.size(); i++) {
+        // `fill_end' is the middle point of projection
+        // `i - 1' and projection `i'
+        auto fill_end = static_cast<int>(
+            std::floor((proj_vals[i].first + proj_vals[i - 1].first) / 2 / width_)
+        );
+        for (; fill_begin < fill_end; fill_begin++)
+            slots_[fill_begin] = proj_vals[i - 1].second;
+    }
+    // now `fill_begin' is the middle point of last projection
+    // and last two projection
+    for (; fill_begin < n_slots_; fill_begin++)
+        slots_[fill_begin] = proj_vals.back().second;
+}
+
+static const float EPSILON = 1e-7;
+
+int SegmentPointLookupTable::nearest(const Vector3 &v) const {
+    auto p = (v - seg_->start_point).project(target_);
+    if (p - min_ < EPSILON)
+        return slots_[0];
+    if (max_ - p < EPSILON)
+        return slots_[n_slots_ - 1];
+    return slots_[static_cast<int>(std::floor((p - min_) / width_))];
 }
 
