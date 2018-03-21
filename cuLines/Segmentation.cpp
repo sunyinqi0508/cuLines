@@ -142,6 +142,11 @@ void decomposeByCurvature(float crv_thresh, float len_thresh) {
 	}
 }
 
+void initializeSecondLevel() {
+    for (std::size_t i = 0; i < segments.size(); i++)
+        second_level.emplace_back(i);
+}
+
 SegmentPointLookupTable::SegmentPointLookupTable(int seg_idx) :
     seg_{ &segments[seg_idx] }
 {

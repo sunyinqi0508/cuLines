@@ -243,6 +243,7 @@ void arrangement(int n_buckets, int n_tuple, int* buckets) {
 
 }
 
+
 constexpr int funcpool_size = 32, L = 5, K = 4, TABLESIZE = 100;
 int main() {
 
