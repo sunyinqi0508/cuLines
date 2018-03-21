@@ -54,10 +54,10 @@ public:
 		delete[] buckets;
 		delete[] _h;
 	}
+
 	static pair<std::vector<LshFunc>, int> create(int n, Segment* samples, size_t n_samples, int n_buckets) {
 
-		std::random_device rd{};
-		std::mt19937_64 engine{ rd() };
+
 		std::normal_distribution<float> gauss_dist{ 0, 1. };
 		
 		std::vector<LshFunc> fn;
@@ -134,8 +134,7 @@ public:
 	vector<int> LSHFunctions;//indices of lsh functions
 	vector<int> r1, r2;
 	vector<LshFunc> *function_pool;
-	random_device rd{};
-	mt19937_64 engine{ rd() };
+
 	unordered_map<int64_t, LSHPoint *>* lshTable;
 	HashTable(vector<int>LSHFunctions, int tablesize, vector<LshFunc> *function_pool, Segment *samples, int n_samples) 
 		: LSHFunctions(LSHFunctions), tablesize(tablesize), function_pool(function_pool)
@@ -164,7 +163,7 @@ public:
 
 			fingerprint1 %= tablesize;
 			fingerprint2 %= Prime;
-			if (lshTable[fingerprint1].find(fingerprint1) != lshTable[fingerprint1].end()) {
+			if (lshTable[fingerprint1].find(fingerprint2) == lshTable[fingerprint1].end()) {
 				lshTable[fingerprint1][fingerprint2] = new LSHPoint(i);
 			}
 			else {
@@ -225,13 +224,28 @@ void arrangement(int n_buckets, int n_tuple, int* buckets) {
 
 }
 
+
+constexpr int funcpool_size = 32, L = 5, K = 4, TABLESIZE = 100;
 int main() {
 
-	LoadWaveFrontObject("d:/flow_data/wall-mounted-10k.obj");
+	LoadWaveFrontObject("d:/flow_data/tornado.obj");
 	//FILEIO::normalize();
 	FILEIO::toFStreamlines();
 	decomposeByCurvature(2*M_PI, 1000.f);
-	pair<vector<LshFunc>, int> funcs = LshFunc::create(32, segments.data(), segments.size(), 5);
+	pair<vector<LshFunc>, int> funcs = LshFunc::create(funcpool_size, segments.data(), segments.size(), 5);
+
+	//stocastic table construction
+	uniform_int_distribution<int> uni_dist{ 0, funcpool_size - 1};
+	for (int l = 0; l < L; l++) {
+		
+		vector<int> func_for_table;
+		for (int k = 0; k < K; k++) 
+			func_for_table.push_back(uni_dist(engine));
+
+		HashTable(func_for_table, TABLESIZE, &funcs.first, segments.data(), segments.size());
+
+	}
+
 	for (const LshFunc& func : funcs.first) {
 
 	}

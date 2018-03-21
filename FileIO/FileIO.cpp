@@ -7,8 +7,8 @@ using namespace std;
 namespace FILEIO {
 	vector<vector<Vector3>>	streamlines;
 	Vector3 ** f_streamlines;
-	INT64 n_streamlines;
-	INT64 n_points;
+	int64_t n_streamlines;
+	int64_t n_points;
 	char availiblity_flag = 0;
 
 	inline void newline(/*const size_t& approx_path*/)
@@ -250,15 +250,15 @@ namespace FILEIO {
 		FILE *fp = 0;
 		fopen_s(&fp, destination, "wb");
 
-		INT64 _size = streamlines.size();
-		fwrite(&_size, sizeof(INT64), 1, fp);
+		int64_t _size = streamlines.size();
+		fwrite(&_size, sizeof(int64_t), 1, fp);
 		_size = 0;
-		fwrite(&_size, sizeof(INT64), 1, fp);
+		fwrite(&_size, sizeof(int64_t), 1, fp);
 		for (vector<Vector3>& line : streamlines) {
 			_size = line.size();
-			fwrite(&_size, sizeof(INT64), 1, fp);
+			fwrite(&_size, sizeof(int64_t), 1, fp);
 		}
-		fseek(fp, -(long)sizeof(INT64), SEEK_END);
+		fseek(fp, -(long)sizeof(int64_t), SEEK_END);
 		for (vector<Vector3>& line : streamlines)
 			for (Vector3& vertex : line)
 				fwrite(vertex, sizeof(vertex), 1, fp);
@@ -327,12 +327,12 @@ namespace FILEIO {
 
 		fread(buffer, 1, file_size, fp);
 
-		n_streamlines = *((INT64*)buffer);
+		n_streamlines = *((int64_t*)buffer);
 		f_streamlines = (Vector3 **)buffer + 1;
 		f_streamlines[0] = (Vector3*)(f_streamlines + n_streamlines);
 		for (int i = 1; i < n_streamlines; i++)
-			f_streamlines[i] = f_streamlines[i - 1] + *((INT64*)f_streamlines + i);
-		n_points = (file_size - sizeof(INT64)*(n_streamlines + 1)) / sizeof(Vector3);
+			f_streamlines[i] = f_streamlines[i - 1] + *((int64_t*)f_streamlines + i);
+		n_points = (file_size - sizeof(int64_t)*(n_streamlines + 1)) / sizeof(Vector3);
 		Streamline::reinit();
 		fclose(fp);
 
@@ -374,7 +374,7 @@ namespace FILEIO {
 		sizes = new int[n_streamlines];
 		std::fill(sizes, sizes + n_streamlines - 1, -1);
 		sizes[n_streamlines - 1] = n_points - (f_streamlines[n_streamlines - 1] - f_streamlines[0]);
-		availiblity_flag |= 1 << Format::STREAMLINE_ARRAY;
+		availiblity_flag |= AvailFlags(Format::STREAMLINE_ARRAY);
 	}
 }
 //bool Streamline::_init = false;

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\cuLines\Common.cpp" />
     <ClCompile Include="FileIO.cpp" />
   </ItemGroup>
   <ItemGroup>

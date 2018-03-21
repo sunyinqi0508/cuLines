@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.27512.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cuLines", "cuLines\cuLines.vcxproj", "{5D8F5F3F-2714-4ABF-8763-5E8A6C5D7818}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EC311B7F-7B3B-41A7-82A1-EDD488C6B0DE} = {EC311B7F-7B3B-41A7-82A1-EDD488C6B0DE}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FileIO", "FileIO\FileIO.vcxproj", "{EC311B7F-7B3B-41A7-82A1-EDD488C6B0DE}"
 EndProject
