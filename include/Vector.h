@@ -69,6 +69,10 @@ public:
 		res.z = x * v.y - y * v.x;
 		return res;
 	}
+
+    inline float project(const Vector3 &target) const {
+        return dot(target) / target.length();
+    }
 	
 	float x, y, z;
 };
