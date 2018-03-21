@@ -173,7 +173,7 @@ public:
 		}
 	}
 
-	void Query(vector<int>& results, Vector3 point) {
+	void Query(vector<int>& results, Vector3 point, bool from_distinct_lines) {
 
 		int64_t fingerprint1 = 0, fingerprint2 = 0;
 		unordered_map<int, int> res;
@@ -209,11 +209,30 @@ public:
 		}
 		unordered_map<int, int>::iterator it = res.begin();
 
-		while (it != res.end()) {
-			results.push_back(it->second);
-			it++;
-		}
-	
+        if (from_distinct_lines) {
+            auto seg_of_lines = new int[n_streamlines];
+            std::fill(seg_of_lines, seg_of_lines + n_streamlines, -1);
+            while (it != res.end()) {
+                auto line_idx = segments[it->second].line;
+                if (seg_of_lines[line_idx] == -1)
+                    seg_of_lines[line_idx] = it->second;
+                else {
+                    auto old_dist = (segments[seg_of_lines[line_idx]].centroid - point).length();
+                    auto new_dist = (segments[it->second].centroid - point).length();
+                    if (new_dist < old_dist)
+                        seg_of_lines[line_idx] = it->second;
+                }
+            }
+            for (int i = 0; i < n_streamlines; i++)
+                if (seg_of_lines[i] >= 0)
+                    results.emplace_back(seg_of_lines[i]);
+            delete[] seg_of_lines;
+        } else {
+            while (it != res.end()) {
+                results.push_back(it->second);
+                it++;
+            }
+        }
 	}
 
 
@@ -223,7 +242,6 @@ void arrangement(int n_buckets, int n_tuple, int* buckets) {
 	float* x = new float[n_buckets];
 
 }
-
 
 constexpr int funcpool_size = 32, L = 5, K = 4, TABLESIZE = 100;
 int main() {
