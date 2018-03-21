@@ -1,7 +1,7 @@
 #ifndef _FILEIO_H
 #define _FILEIO_H
 #include "Vector.h"
-#include <basetsd.h>
+#include <stdint.h>
 #include <vector>
 
 #define AvailFlags(i) (1<<(i))
@@ -10,8 +10,8 @@ namespace FILEIO {
 	extern std::vector<std::vector<Vector3>> streamlines;
 	extern Vector3** f_streamlines;
 	extern char availiblity_flag;
-	extern INT64 n_points;
-	extern INT64 n_streamlines;
+	extern int64_t n_points;
+	extern int64_t n_streamlines;
 
 	enum Format { STREAMLINE_ARRAY, STREAMLINE_VECTOR };
 
@@ -21,7 +21,6 @@ namespace FILEIO {
 	void OutputOBJ(const char* destination, const float* vt, Format source);
 	void ReadBSL(const char* filename);
 	void toFStreamlines();
-
 	class Streamline {
 	private:
 		static int* sizes;

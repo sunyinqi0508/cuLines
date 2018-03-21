@@ -6,7 +6,7 @@ using namespace FILEIO;
 
 
 Segment::Segment(size_t line, int begin, int end):
-	line(line), begin(begin), end(end) 
+	line(line), begin(begin), end(end), cnt(end - begin)
 {
 	centroid = 0;
 	for (int i = begin; i < end; i++) {

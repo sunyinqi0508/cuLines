@@ -145,6 +145,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="cuLines.cu" />
+    <ClCompile Include="cuStubs.cpp" />
     <ClCompile Include="LSH.cpp">
       <TargetMachinePlatform Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">64</TargetMachinePlatform>
     </ClCompile>

@@ -44,7 +44,7 @@ public:
 		:x(x), y(y), z(z) {}
 	
 	inline operator float*() { return (float*)this; }
-	inline operator float() { return length(); }
+	inline operator float() const { return length(); }
 	void operator ()
 		(float _x, float _y, float _z) { x = _x, y = _y, z = _z; }
 

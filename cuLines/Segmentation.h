@@ -7,8 +7,8 @@
 
 class Segment {
 public:
-	size_t line;
-	int begin, end, cnt = end - begin;
+	const size_t line;
+	const int begin, end, cnt;
 	Vector3 centroid = 0;
 	Vector3 start_point, end_point;
 	Segment(size_t line, int begin, int end);

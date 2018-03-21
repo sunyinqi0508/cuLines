@@ -134,7 +134,7 @@ public:
 	vector<int> LSHFunctions;//indices of lsh functions
 	vector<int> r1, r2;
 	vector<LshFunc> *function_pool;
-
+	  
 	unordered_map<int64_t, LSHPoint *>* lshTable;
 	HashTable(vector<int>LSHFunctions, int tablesize, vector<LshFunc> *function_pool, Segment *samples, int n_samples) 
 		: LSHFunctions(LSHFunctions), tablesize(tablesize), function_pool(function_pool)
@@ -245,28 +245,6 @@ int main() {
 		HashTable(func_for_table, TABLESIZE, &funcs.first, segments.data(), segments.size());
 
 	}
-
-	for (const LshFunc& func : funcs.first) {
-
-	}
-	
-	//int *a = new int[5], *b = new int[5];
-	//for (int i = 0; i< 5; i++) {
-	//	a[i] = i;
-	//	b[i] = i *(1 + (float)rand() / (float)RAND_MAX);
-	//}
-	//int *d_a, *d_b;
-	//cudaMalloc(&d_a, sizeof(float) * 5);
-	//cudaMalloc(&d_b, sizeof(float) * 5);
-	//cudaMemcpy(d_b, b, sizeof(float) * 5, cudaMemcpyHostToDevice);
-	//cudaMemcpy(d_a, a, sizeof(float) * 5, cudaMemcpyHostToDevice);
-
-	//test << <1, 5 >> > (d_a, d_b);
-	//cudaMemcpy(b, d_b, sizeof(float) * 5, cudaMemcpyDeviceToHost);
-	//cudaMemcpy(a, d_a, sizeof(float) * 5, cudaMemcpyDeviceToHost);
-	//for (int i = 0; i < 5; i++) {
-	//	cout << a[i] << endl;
-	//}
 
 	return 0;
 }

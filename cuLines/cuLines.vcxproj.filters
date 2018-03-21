@@ -38,5 +38,8 @@
     <ClCompile Include="LSH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cuStubs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
