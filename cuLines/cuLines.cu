@@ -83,8 +83,46 @@ void cuLSH(
 
 
 __global__
-void cuLineHashing() {
+void cuLineHashing(
 
+	int *__restrict__ results,
+	const GPU_SegmentsLv2 *segs_lv2, const float *f_stremlines, const int* lineoffsets,
+	const short* lv2_buckets, const int n_lines, const int n_pts
+
+) {
+
+	int i = threadIdx.x;
+	for (; i < n_lines; i+= blockDim.x) {
+		int j = blockIdx.x;
+		for (; j < lineoffsets[i + 1]; j += gridDim.x) {
+			
+			int ptnum = lineoffsets[i] + j;
+
+			for (int k = 0; k < maxNN; k++) 
+				if (results[ptnum*maxNN + k] > 0)
+				{
+					const int this_seg = results[ptnum * maxNN + k];
+					const int ptoffset = segs_lv2[this_seg].bucket_pos_offset;
+					float projection = 0;
+#pragma unroll 
+					for (int _dim = 0; _dim < 3; _dim++) 
+						projection += 
+							(f_stremlines[ptnum * 3 + _dim] - segs_lv2[this_seg].origin[_dim]) * segs_lv2[this_seg].projector[_dim];
+					
+					int bucket = std::floor(projection);
+					if (projection < 0)
+						bucket = 0;
+					else if (projection > segs_lv2[this_seg].width - 1)
+						bucket = segs_lv2[this_seg].width - 1;
+
+					results[ptnum * maxNN + k] = ptoffset + lv2_buckets[segs_lv2[this_seg].bucket_pos_offset] + bucket;
+				}
+				else
+					break;
+
+
+		}
+	}
 }
 
 
@@ -96,7 +134,7 @@ void cuSimilarity() {
 void cudaLauncher();
 
 namespace cudadevice_variables {
-	extern SegmentInfo* seg_info;  //Lv2. hash projector 
+	extern GPU_SegmentsLv2* segslv2;  //Lv2. hash projector 
 	extern GPU_Segments* segs;//centroid + line No. for Lv1. LSH
 	extern float* l2buckets;
 	extern GPU_HashTable *d_hash;

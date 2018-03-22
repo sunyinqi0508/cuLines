@@ -25,7 +25,7 @@ struct test {
 };
 __global__ void testfunc(int *c)
 {
-	c[2] = 9;
+	//c[2] = 9;
 	//printf("Ha! Global func on device %d\n");
 };
 	//OPERATION(+)

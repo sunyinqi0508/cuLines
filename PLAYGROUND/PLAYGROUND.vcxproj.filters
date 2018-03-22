@@ -20,13 +20,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <CudaCompile Include="cudaCall.cu" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="cudaCall.cu">
+    <ClInclude Include="common.h">
       <Filter>Source Files</Filter>
-    </None>
+    </ClInclude>
   </ItemGroup>
 </Project>

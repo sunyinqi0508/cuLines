@@ -8,10 +8,14 @@ __global__ void test2(int *a=0) {
 	a[threadIdx.x] = blockIdx.x;
 	printf("a\n");
 }
+
+
 void cudacall() {
+
+
 	int *d_a, *a = new int[64];
 	cudaMalloc(&d_a, 64);
-	testfunc << <4, 4 >> > (d_a);
+	test2 << <4, 4 >> > (d_a); 
 	cudaMemcpy(a, d_a, 16, cudaMemcpyDeviceToHost);
 	printf("%d", a[3]);
 

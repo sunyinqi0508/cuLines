@@ -42,8 +42,12 @@ __device__ __host__ struct GPU_Segments {
 };
 
 __device__ __host__ struct GPU_SegmentsLv2 {
-	int offset;
+
+	int point_num_offset, bucket_pos_offset;
+	int length;
+
 	float origin[3], projector[3];
-	int bucket_offset;
+	float width;
+
 };
 #endif
