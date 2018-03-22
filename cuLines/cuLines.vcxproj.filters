@@ -32,9 +32,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cuLines.cu">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Segmentation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -44,5 +41,10 @@
     <ClCompile Include="cuStubs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="cuLines.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
   </ItemGroup>
 </Project>

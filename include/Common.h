@@ -21,8 +21,6 @@
 template<typename T>
 inline T constexpr cubic(const T v) noexcept { return v*v*v; }
 
-template<typename T>
-inline T constexpr pow2(const T v) noexcept { return v * v; }
 #include <random>
 extern std::mt19937_64 engine;
 

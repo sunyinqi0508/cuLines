@@ -23,9 +23,9 @@ class SegmentPointLookupTable {
     int *slots_ = 0, n_slots_;
 public:
     explicit SegmentPointLookupTable(int seg_idx);
-
+	//SegmentPointLookupTable(SegmentPointLookupTable &&) = delete;
     ~SegmentPointLookupTable() {
-		delete[] slots_;
+		//delete[] slots_;
     }
 
     int nearest(const Vector3 &v) const;
@@ -36,7 +36,7 @@ extern void decomposeByCurvature(float, float);
 extern void initializeSecondLevel();
 
 extern std::vector<Segment> segments;
-extern std::vector<SegmentPointLookupTable*> second_level;
+extern std::vector<SegmentPointLookupTable> second_level;
 
 
 #endif

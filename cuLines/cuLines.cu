@@ -5,6 +5,9 @@
 #include "Vector.h"
 
 
+template<typename T>
+__device__
+inline T constexpr pow2(const T v) noexcept { return v * v; }
 
 __global__
 void cuLSH(
@@ -137,7 +140,7 @@ void cuSimilarity(
 	for (; i < n_lines; i += blockDim.x) {
 		int j = blockIdx.x;
 		for (; j < lineoffsets[i + 1]; j += gridDim.x) {
-		
+			
 		}
 	}
 

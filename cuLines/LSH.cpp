@@ -196,19 +196,20 @@ public:
 		}
 		fingerprint1 %= tablesize;
 		fingerprint2 %= Prime;
-		for (int resultint_pt : lshTable[fingerprint1][fingerprint2]->ptr_segments) {
-			const Segment this_seg = segments[resultint_pt];
-			unordered_map<int, int>::iterator findings = res.find(this_seg.line);
+		if(lshTable[fingerprint1].find(fingerprint2)!= lshTable[fingerprint1].end())
+			for (int resultint_pt : lshTable[fingerprint1][fingerprint2]->ptr_segments) {
+				const Segment this_seg = segments[resultint_pt];
+				unordered_map<int, int>::iterator findings = res.find(this_seg.line);
 			
-			if (findings != res.end()) {
-				int& curr_seg = findings->second;
-				if ((point - this_seg.centroid).length() < (point - segments[curr_seg].centroid).length()) {
-					curr_seg = resultint_pt;
+				if (findings != res.end()) {
+					int& curr_seg = findings->second;
+					if ((point - this_seg.centroid).length() < (point - segments[curr_seg].centroid).length()) {
+						curr_seg = resultint_pt;
+					}
 				}
+				else
+					res[this_seg.line] = resultint_pt;
 			}
-			else
-				res[this_seg.line] = resultint_pt;
-		}
 		unordered_map<int, int>::iterator it = res.begin();
 
         if (from_distinct_lines) {
@@ -342,7 +343,7 @@ void arrangement(int n_buckets, int n_tuple, int* buckets) {
 vector<HashTable> hashtables;
 int main() {
 
-	LoadWaveFrontObject("e:/flow_data/tornado.obj");
+	LoadWaveFrontObject("d:/flow_data/tornado.obj");
 	//FILEIO::normalize();
 	FILEIO::toFStreamlines();
 	decomposeByCurvature(2*M_PI, 1000.f);
@@ -363,7 +364,7 @@ int main() {
     initializeSecondLevel();
     
     for (int i = 0; i < n_points; i++) {
-        auto p = streamlines[0][i];
+        auto p = f_streamlines[0][i];
         auto ann_result = queryANN(hashtables, p);
     }
 	return 0;

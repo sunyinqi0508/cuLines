@@ -147,7 +147,7 @@ void decomposeByCurvature(float crv_thresh, float len_thresh) {
 void initializeSecondLevel() {
     second_level.reserve(segments.size());
     for (std::size_t i = 0; i < segments.size(); i++)
-		second_level.emplace_back(new SegmentPointLookupTable(i));
+		second_level.emplace_back(i);
 }
 
 SegmentPointLookupTable::SegmentPointLookupTable(int seg_idx) :
@@ -199,4 +199,4 @@ int SegmentPointLookupTable::nearest(const Vector3 &v) const {
     return slots_[static_cast<int>(std::floor((p - min_) / width_))];
 }
 
-std::vector<SegmentPointLookupTable*> second_level;
+std::vector<SegmentPointLookupTable> second_level;
