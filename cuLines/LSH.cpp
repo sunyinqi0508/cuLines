@@ -175,7 +175,7 @@ public:
 		}
 	}
 
-	void Query(vector<int>& results, Vector3 point, bool from_distinct_lines) {
+	void Query(vector<int>& results, Vector3 point, bool from_distinct_lines = true) {
 
 		int64_t fingerprint1 = 0, fingerprint2 = 0;
 		unordered_map<int, int> res;
@@ -232,13 +232,108 @@ public:
         } else {
             while (it != res.end()) {
                 results.push_back(it->second);
-                it++;
+                it++; 
             }
         }
 	}
 
 
 };
+
+template <typename S, typename T>
+bool compareFirstOnly(const pair<S, T> &lhs, const pair<S, T> &rhs) {
+    return lhs.first < rhs.first;
+}
+
+template <typename S, typename T>
+void sortByFirst(vector<pair<S, T>> &c) {
+    sort(begin(c), end(c), compareFirstOnly<S, T>);
+}
+
+std::vector<int> groundtruth(Vector3 pt, int query_limit) {
+    auto heap = new pair<float, int>[query_limit];
+    fill(heap, heap + query_limit, make_pair(numeric_limits<float>::max(), -1));
+    for (int i = 0; i < n_streamlines; i++) {
+        auto n = streamlines[i].size();
+        auto nearest = min_element(f_streamlines[i], f_streamlines[i] + n, [pt](auto u, auto v) {
+            return u.distance(pt) < v.distance(pt);
+        }) - f_streamlines[i];
+        auto dist = f_streamlines[i][nearest].distance(pt);
+        if (dist < heap->first) {
+            pop_heap(heap, heap + query_limit, compareFirstOnly<float, int>);
+            heap[query_limit - 1] = make_pair(dist, nearest);
+            push_heap(heap, heap + query_limit, compareFirstOnly<float, int>);
+        }
+    }
+    std::vector<int> res;
+    for (int i = 0; i < query_limit; i++)
+        res.emplace_back(heap[i].second);
+    delete[] heap;
+    return res;
+}
+
+vector<int> queryGroundTruth(Vector3 pt) {
+    vector<int> result;
+    // for each lines
+    for (int i = 0; i < n_streamlines; i++) {
+        auto nearest_dist = numeric_limits<float>::infinity();
+        
+    }
+    return result;
+}
+
+inline int getGlobalIndex(int line_idx, int pt_idx) {
+    return &f_streamlines[line_idx][pt_idx] - &f_streamlines[0][0];
+}
+
+vector<int> queryANN(vector<HashTable> &hts, Vector3 pt) {
+    // do first level query
+    vector<int> query_result;
+    auto seg_of_lines = new int[n_streamlines];
+    std::fill(seg_of_lines, seg_of_lines + n_streamlines, -1);
+    // merge query result from all hash tables
+    for (auto &ht : hts) {
+        query_result.clear();
+        ht.Query(query_result, pt, false);
+        for (auto seg_idx : query_result) {
+            // line index of this segment
+            auto line_idx = segments[seg_idx].line;
+            // if this line has not been recorded
+            if (seg_of_lines[line_idx] == -1)
+                seg_of_lines[line_idx] = seg_idx;
+            else {
+                // test if nearer
+                auto old_dist = (segments[seg_of_lines[line_idx]].centroid - pt).length();
+                auto new_dist = (segments[seg_idx].centroid - pt).length();
+                if (new_dist < old_dist)
+                    seg_of_lines[line_idx] = seg_idx;
+            }
+        }
+    }
+    // do second level query
+    vector<int> result;
+    for (int i = 0; i < n_streamlines; i++)
+        if (seg_of_lines[i] >= 0) {
+            auto nearest = second_level[seg_of_lines[i]].nearest(pt);
+            result.emplace_back(getGlobalIndex(segments[i].line, nearest));
+        }
+    return result;
+}
+
+float evaluateError(
+    Vector3 pt,
+    const std::vector<int> &groundtruth,
+    const std::vector<int> &ann_result
+) {
+    auto n = min(groundtruth.size(), ann_result.size());
+    auto errorSum = 0.f;
+    for (size_t i = 0; i < n; i++) {
+        auto dist_gt = f_streamlines[0][groundtruth[i]].distance(pt);
+        auto dist_ann = f_streamlines[0][ann_result[i]].distance(pt);
+        errorSum += fabsf(dist_gt - dist_ann);
+    }
+    return errorSum;
+}
 
 void arrangement(int n_buckets, int n_tuple, int* buckets) {
 	float* x = new float[n_buckets];
@@ -247,7 +342,7 @@ void arrangement(int n_buckets, int n_tuple, int* buckets) {
 vector<HashTable> hashtables;
 int main() {
 
-	LoadWaveFrontObject("d:/flow_data/tornado.obj");
+	LoadWaveFrontObject("e:/flow_data/tornado.obj");
 	//FILEIO::normalize();
 	FILEIO::toFStreamlines();
 	decomposeByCurvature(2*M_PI, 1000.f);
@@ -263,8 +358,13 @@ int main() {
 			func_for_table.push_back(uni_dist(engine));
 
 		hashtables.push_back(HashTable(func_for_table, TABLESIZE, funcs.first, segments.data(), segments.size()));
-
 	}
 
+    initializeSecondLevel();
+    
+    for (int i = 0; i < n_points; i++) {
+        auto p = streamlines[0][i];
+        auto ann_result = queryANN(hashtables, p);
+    }
 	return 0;
 }
