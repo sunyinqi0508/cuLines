@@ -145,6 +145,7 @@ void decomposeByCurvature(float crv_thresh, float len_thresh) {
 }
 
 void initializeSecondLevel() {
+    second_level.reserve(segments.size());
     for (std::size_t i = 0; i < segments.size(); i++)
 		second_level.emplace_back(new SegmentPointLookupTable(i));
 }
@@ -174,8 +175,9 @@ SegmentPointLookupTable::SegmentPointLookupTable(int seg_idx) :
     for (std::size_t i = 1; i < proj_vals.size(); i++) {
         // `fill_end' is the middle point of projection
         // `i - 1' and projection `i'
+        auto mid_proj_val = (proj_vals[i].first + proj_vals[i - 1].first) / 2;
         auto fill_end = static_cast<int>(
-            std::floor(((proj_vals[i].first + proj_vals[i - 1].first) / 2 - min_) / width_)
+            std::floor((mid_proj_val - min_) / width_)
         );
         for (; fill_begin < fill_end; fill_begin++)
             slots_[fill_begin] = proj_vals[i - 1].second;

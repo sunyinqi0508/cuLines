@@ -73,6 +73,10 @@ public:
     inline float project(const Vector3 &target) const {
         return dot(target) / target.length();
     }
+
+    inline float distance(const Vector3 &that) const {
+        return (*this - that).length();
+    }
 	
 	float x, y, z;
 };
