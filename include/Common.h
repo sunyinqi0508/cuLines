@@ -15,6 +15,8 @@
 	QueryPerformanceCounter(&end);\
 	printf("Time: %f\n", (float)(end.QuadPart - begin.QuadPart)/ (float) freq.QuadPart);\
 
+#define _out_ 
+#define _in_ 
 
 template<typename T>
 inline T constexpr cubic(const T v) noexcept { return v*v*v; }

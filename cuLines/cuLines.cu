@@ -127,7 +127,19 @@ void cuLineHashing(
 
 
 __global__
-void cuSimilarity() {
+void cuSimilarity(
+	_out_ float *variation, _out_ float* distances, _out_ int*points,
+	_in_ const float *f_streamlines, _in_ const int * lineoffsets, _in_ const int* results,
+	const int n_lines, const int n_pts
+) {
+
+	int i = threadIdx.x;
+	for (; i < n_lines; i += blockDim.x) {
+		int j = blockIdx.x;
+		for (; j < lineoffsets[i + 1]; j += gridDim.x) {
+		
+		}
+	}
 
 }
 
