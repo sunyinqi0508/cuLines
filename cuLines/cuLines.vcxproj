@@ -155,6 +155,7 @@
     <ClInclude Include="..\include\Vector.h" />
     <ClInclude Include="LSH.h" />
     <ClInclude Include="cuStubs.cuh" />
+    <ClInclude Include="Parameters.h" />
     <ClInclude Include="Segmentation.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

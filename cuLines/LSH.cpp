@@ -6,6 +6,7 @@
 #include "Common.h"
 #include "cuStubs.cuh"
 #include "Segmentation.h"
+#include "Parameters.h"
 #include <stdint.h>
 
 #include <unordered_map>
@@ -19,7 +20,6 @@
 using namespace std;
 using namespace FILEIO;
 typedef Vector3 Vector;
-constexpr int64_t Prime = (1ll << 32) - 5;
 
 class LshFunc {
 
@@ -140,7 +140,7 @@ public:
 		: LSHFunctions(LSHFunctions), tablesize(tablesize), function_pool(function_pool)
 	{
 		lshTable = new unordered_map<int64_t, LSHPoint*>[tablesize];
-		std::uniform_int_distribution<int> uni_intdist{};
+		std::uniform_int_distribution<int> uni_intdist{0, (1<<29)};
 		for (int funcidx : LSHFunctions) {
 			r1.push_back(uni_intdist(engine));
 			r2.push_back(uni_intdist(engine));
@@ -150,14 +150,16 @@ public:
 			int64_t fingerprint1 = 0, fingerprint2 = 0;
 			for (int j = 0; j < LSHFunctions.size(); j++) {
 
-				const int64_t tmp_fp1 = r1[j] * (*function_pool)[LSHFunctions[j]].h(i);
-				const int64_t tmp_fp2 = r2[j] * (*function_pool)[LSHFunctions[j]].h(i);
-				
-				fingerprint1 += (tmp_fp1 >> 32) ? ((tmp_fp1 >> 32) + 5) : tmp_fp1;
-				fingerprint2 += (tmp_fp2 >> 32) ? ((tmp_fp2 >> 32) + 5) : tmp_fp2;
+				int64_t tmp_fp1 = r1[j] * (*function_pool)[LSHFunctions[j]].h(i);
+				int64_t tmp_fp2 = r2[j] * (*function_pool)[LSHFunctions[j]].h(i);
+				tmp_fp1 = 5 * (tmp_fp1 >> 32) + (tmp_fp1 & 0xffffffff);
+				tmp_fp2 = 5 * (tmp_fp2 >> 32) + (tmp_fp2 & 0xffffffff);
 
-				fingerprint1 = (fingerprint1 >> 32) ? ((fingerprint1 >> 32) + 5) : fingerprint1;
-				fingerprint2 = (fingerprint2 >> 32) ? ((fingerprint2 >> 32) + 5) : fingerprint2;
+				fingerprint1 += (tmp_fp1 >> 32) ? (tmp_fp1 - Prime) : tmp_fp1;
+				fingerprint2 += (tmp_fp2 >> 32) ? (tmp_fp2  -Prime) : tmp_fp2;
+
+				fingerprint1 = (fingerprint1 >> 32) ? (fingerprint1 - Prime) : fingerprint1;
+				fingerprint2 = (fingerprint2 >> 32) ? (fingerprint2 - Prime) : fingerprint2;
 
 			}
 
@@ -179,6 +181,7 @@ public:
 		unordered_map<int, int> res;
 
 		for (int j = 0; j < LSHFunctions.size(); j++) {
+			
 			const LshFunc curr_func = (*function_pool)[LSHFunctions[j]];
 			const int n_buckets = curr_func.get_n_buckets();
 			const int64_t tmp_fp1 = r1[j] * curr_func(point);
@@ -189,7 +192,6 @@ public:
 
 			fingerprint1 = (fingerprint1 >> 32) ? ((fingerprint1 >> 32) + 5) : fingerprint1;
 			fingerprint2 = (fingerprint2 >> 32) ? ((fingerprint2 >> 32) + 5) : fingerprint2;
-
 
 		}
 		fingerprint1 %= tablesize;
@@ -243,13 +245,13 @@ void arrangement(int n_buckets, int n_tuple, int* buckets) {
 
 }
 vector<HashTable> hashtables;
-constexpr int funcpool_size = 32, L = 5, K = 4, TABLESIZE = 100;
 int main() {
 
 	LoadWaveFrontObject("d:/flow_data/tornado.obj");
 	//FILEIO::normalize();
 	FILEIO::toFStreamlines();
 	decomposeByCurvature(2*M_PI, 1000.f);
+	initializeSecondLevel();
 	pair<vector<LshFunc>*, int> funcs = LshFunc::create(funcpool_size, segments.data(), segments.size(), 5);
 
 	//stocastic table construction

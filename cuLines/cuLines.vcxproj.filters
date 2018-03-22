@@ -27,6 +27,9 @@
     <ClInclude Include="LSH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Parameters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cuLines.cu">
