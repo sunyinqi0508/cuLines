@@ -90,7 +90,7 @@ namespace FILEIO {
 	}
 
 	//template <bool T>
-	void normalize() {
+	void normalize(float R, const bool _normalize) {
 
 		float max = INT_MIN, min = INT_MAX;
 		for (vector<Vector3>& line : streamlines)
@@ -101,13 +101,18 @@ namespace FILEIO {
 					else if (vertex[i] < min)
 						min = vertex[i];
 
-		const float interval = max - min;
+		const float interval = (_normalize ? (max - min) : 1) * R;
 
 		for (vector<Vector3>&line : streamlines)
 			for (Vector3& vertex : line)
 				for (int i = 0; i < 3; i++)
 					vertex[i] = (vertex[i] - min) / interval;
 
+	}
+
+	void scaleByR(float R, const bool _normalize)
+	{
+		normalize(R, _normalize);
 	}
 
 	void LoadWaveFrontObject_NG(const char* file) {
@@ -245,6 +250,7 @@ namespace FILEIO {
 		}
 
 	}
+
 	void OutputBSL(const char* destination) {
 
 		FILE *fp = 0;

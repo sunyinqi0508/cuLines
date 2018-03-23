@@ -4,8 +4,14 @@
 #include "device_launch_parameters.h"
 
 #include<stdio.h>
-__global__ void test2(int *a=0) {
-	a[threadIdx.x] = blockIdx.x;
+__device__ __host__
+struct Struct {
+	int a, b;
+};
+
+__global__ void test2(Struct *a) {
+	a[threadIdx.x].a = blockIdx.x;
+	a[threadIdx.x].b = threadIdx.x;
 	printf("a\n");
 }
 
@@ -14,9 +20,11 @@ void cudacall() {
 
 
 	int *d_a, *a = new int[64];
-	cudaMalloc(&d_a, 64);
-	test2 << <4, 4 >> > (d_a); 
-	cudaMemcpy(a, d_a, 16, cudaMemcpyDeviceToHost);
-	printf("%d", a[3]);
+	Struct *s = new Struct[4], *d_s;
+	cudaMalloc(&d_s, 4 * sizeof(Struct));
+	test2 << <4, 4 >> > (d_s); 
+	cudaMemcpy(s, d_s, 4 * sizeof(Struct), cudaMemcpyDeviceToHost);
+	for(int i = 0;i<4;i++)
+		printf("%d %d \n", s[i].a, s[i].b);
 
 }

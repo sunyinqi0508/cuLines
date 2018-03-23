@@ -18,6 +18,13 @@
 #define _out_ 
 #define _in_ 
 
+struct Communicator {
+	const char* filename;
+	float **f_streamlines;
+	float *results;
+	void *AdditionalParas;
+};
+
 template<typename T>
 inline T constexpr cubic(const T v) noexcept { return v*v*v; }
 

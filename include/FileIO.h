@@ -16,11 +16,18 @@ namespace FILEIO {
 	enum Format { STREAMLINE_ARRAY, STREAMLINE_VECTOR };
 
 	void LoadWaveFrontObject(const char* file);
-	void normalize();
+	void normalize(float R = 1, const bool _normalize = true);
 	void OutputBSL(const char* destination);
 	void OutputOBJ(const char* destination, const float* vt, Format source);
 	void ReadBSL(const char* filename);
 	void toFStreamlines();
+	/*
+	*_normalize: true => normalize to [0, 1] then scale;
+	*	 		 false => scale on original coords. (default)
+	*			
+	*/
+	void scaleByR(float R, const bool _normalize = false);
+
 	class Streamline {
 	private:
 		static int* sizes;

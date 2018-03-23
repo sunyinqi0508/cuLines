@@ -41,6 +41,9 @@
     <ClCompile Include="cuStubs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cuLines.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="cuLines.cu">
