@@ -7,6 +7,8 @@
 #include "cuStubs.cuh"
 #include "Segmentation.h"
 #include "Parameters.h"
+#include "Stopwatch.h"
+
 #include <stdint.h>
 
 #include <unordered_map>
@@ -251,43 +253,44 @@ void sortByFirst(vector<pair<S, T>> &c) {
     sort(begin(c), end(c), compareFirstOnly<S, T>);
 }
 
-std::vector<int> groundtruth(Vector3 pt, int query_limit) {
-    auto heap = new pair<float, int>[query_limit];
-    fill(heap, heap + query_limit, make_pair(numeric_limits<float>::max(), -1));
-    for (int i = 0; i < n_streamlines; i++) {
-        auto n = streamlines[i].size();
-        auto nearest = min_element(f_streamlines[i], f_streamlines[i] + n, [pt](auto u, auto v) {
-            return u.distance(pt) < v.distance(pt);
-        }) - f_streamlines[i];
-        auto dist = f_streamlines[i][nearest].distance(pt);
-        if (dist < heap->first) {
-            pop_heap(heap, heap + query_limit, compareFirstOnly<float, int>);
-            heap[query_limit - 1] = make_pair(dist, nearest);
-            push_heap(heap, heap + query_limit, compareFirstOnly<float, int>);
-        }
-    }
-    std::vector<int> res;
-    for (int i = 0; i < query_limit; i++)
-        res.emplace_back(heap[i].second);
-    delete[] heap;
-    return res;
-}
-
-vector<int> queryGroundTruth(Vector3 pt) {
-    vector<int> result;
-    // for each lines
-    for (int i = 0; i < n_streamlines; i++) {
-        auto nearest_dist = numeric_limits<float>::infinity();
-        
-    }
-    return result;
-}
-
 inline int getGlobalIndex(int line_idx, int pt_idx) {
     return &f_streamlines[line_idx][pt_idx] - &f_streamlines[0][0];
 }
 
-vector<int> queryANN(vector<HashTable> &hts, Vector3 pt) {
+struct Point {
+    int line_idx, point_idx, global_idx;
+
+    Point(int line_index, int point_index) :
+        line_idx{ line_index },
+        point_idx{ point_idx },
+        global_idx{ getGlobalIndex(line_index, point_index) }
+    {}
+};
+
+vector<pair<float, int>> queryGroundTruth(Vector3 pt) {
+    vector<pair<float, int>> result;
+    // for each lines
+    for (int i = 0; i < n_streamlines; i++) {
+        auto nearest_dist = numeric_limits<float>::infinity();
+        Vector *nearest_vec = nullptr;
+        auto n = &f_streamlines[i + 1][0] - &f_streamlines[i][0];
+        for (int j = 0; j < n; j++) {
+            auto dist = f_streamlines[i][j].distance(pt);
+            if (dist < nearest_dist) {
+                nearest_vec = &f_streamlines[i][j];
+                nearest_dist = dist;
+            }
+        }
+        if (nearest_vec) {
+            auto pt_glob_idx = nearest_vec - &f_streamlines[0][0];
+            result.emplace_back(nearest_dist, pt_glob_idx);
+        }
+    }
+    sort(begin(result), end(result), compareFirstOnly<float, int>);
+    return result;
+}
+
+vector<pair<float, int>> queryANN(vector<HashTable> &hts, Vector3 pt) {
     // do first level query
     vector<int> query_result;
     auto seg_of_lines = new int[n_streamlines];
@@ -312,28 +315,30 @@ vector<int> queryANN(vector<HashTable> &hts, Vector3 pt) {
         }
     }
     // do second level query
-    vector<int> result;
+    vector<pair<float, int>> result;
     for (int i = 0; i < n_streamlines; i++)
         if (seg_of_lines[i] >= 0) {
             auto nearest = second_level[seg_of_lines[i]].nearest(pt);
-            result.emplace_back(getGlobalIndex(segments[i].line, nearest));
+            auto nearest_glob_idx = getGlobalIndex(segments[i].line, nearest);
+            auto nearest_dist = f_streamlines[0][nearest_glob_idx].distance(pt);
+            result.emplace_back(nearest_dist, nearest_glob_idx);
         }
+    sort(begin(result), end(result), compareFirstOnly<float, int>);
     return result;
 }
 
 float evaluateError(
-    Vector3 pt,
-    const std::vector<int> &groundtruth,
-    const std::vector<int> &ann_result
+    const vector<pair<float, int>> &groundtruth,
+    const vector<pair<float, int>> &ann_result
 ) {
     auto n = min(groundtruth.size(), ann_result.size());
     auto errorSum = 0.f;
     for (size_t i = 0; i < n; i++) {
-        auto dist_gt = f_streamlines[0][groundtruth[i]].distance(pt);
-        auto dist_ann = f_streamlines[0][ann_result[i]].distance(pt);
+        auto dist_gt = groundtruth[i].first;
+        auto dist_ann = ann_result[i].first;
         errorSum += fabsf(dist_gt - dist_ann);
     }
-    return errorSum;
+    return errorSum / static_cast<float>(n);
 }
 
 void arrangement(int n_buckets, int n_tuple, int* buckets) {
@@ -341,13 +346,14 @@ void arrangement(int n_buckets, int n_tuple, int* buckets) {
 
 }
 vector<HashTable> hashtables;
-int main() {
 
+int main() {
 	LoadWaveFrontObject("d:/flow_data/tornado.obj");
 	//FILEIO::normalize();
 	FILEIO::toFStreamlines();
 	decomposeByCurvature(2*M_PI, 1000.f);
 	initializeSecondLevel();
+    cout << n_points << " points, " << n_streamlines << " stream lines and " << segments.size() << " segments\n";
 	pair<vector<LshFunc>*, int> funcs = LshFunc::create(funcpool_size, segments.data(), segments.size(), 5);
 
 	//stocastic table construction
@@ -360,12 +366,24 @@ int main() {
 
 		hashtables.push_back(HashTable(func_for_table, TABLESIZE, funcs.first, segments.data(), segments.size()));
 	}
-
-    initializeSecondLevel();
     
+    Stopwatch sw;
     for (int i = 0; i < n_points; i++) {
+        cout << "Query #" << i << '\n';
         auto p = f_streamlines[0][i];
+        // ground truth
+        sw.start();
+        auto gt_result = queryGroundTruth(p);
+        sw.stop();
+        cout << "Time used to compute ground truth: " << sw.elapsedSeconds() << 's' << '\n';
+        // ANN
+        sw.start();
         auto ann_result = queryANN(hashtables, p);
+        sw.stop();
+        cout << "Time used to do ANN query: " << sw.elapsedSeconds() << 's' << '\n';
+        // evaluate error
+        auto error = evaluateError(gt_result, ann_result);
+        cout << "Error: " << error << '\n';
     }
 	return 0;
 }
