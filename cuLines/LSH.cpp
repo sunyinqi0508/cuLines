@@ -186,15 +186,16 @@ public:
 			
 			const LshFunc curr_func = (*function_pool)[LSHFunctions[j]];
 			const int n_buckets = curr_func.get_n_buckets();
-			const int64_t tmp_fp1 = r1[j] * curr_func(point);
-			const int64_t tmp_fp2 = r2[j] * curr_func(point);
+			int64_t tmp_fp1 = r1[j] * curr_func(point);
+			int64_t tmp_fp2 = r2[j] * curr_func(point);
+			tmp_fp1 = 5 * (tmp_fp1 >> 32) + (tmp_fp1 & 0xffffffff);
+			tmp_fp2 = 5 * (tmp_fp2 >> 32) + (tmp_fp2 & 0xffffffff);
 
-			fingerprint1 += (tmp_fp1 >> 32) ? ((tmp_fp1 >> 32) + 5) : tmp_fp1;
-			fingerprint2 += (tmp_fp2 >> 32) ? ((tmp_fp2 >> 32) + 5) : tmp_fp2;
+			fingerprint1 += (tmp_fp1 >> 32) ? (tmp_fp1 - Prime) : tmp_fp1;
+			fingerprint2 += (tmp_fp2 >> 32) ? (tmp_fp2 - Prime) : tmp_fp2;
 
-			fingerprint1 = (fingerprint1 >> 32) ? ((fingerprint1 >> 32) + 5) : fingerprint1;
-			fingerprint2 = (fingerprint2 >> 32) ? ((fingerprint2 >> 32) + 5) : fingerprint2;
-
+			fingerprint1 = (fingerprint1 >> 32) ? (fingerprint1 - Prime) : fingerprint1;
+			fingerprint2 = (fingerprint2 >> 32) ? (fingerprint2 - Prime) : fingerprint2;
 		}
 		fingerprint1 %= tablesize;
 		fingerprint2 %= Prime;
