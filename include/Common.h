@@ -23,6 +23,9 @@ struct Communicator {
 	float **f_streamlines;
 	float *results;
 	void *AdditionalParas;
+	int n_streamlines;
+	int *sizes;
+	int n_points;
 };
 
 template<typename T>

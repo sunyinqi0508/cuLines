@@ -20,17 +20,18 @@
 #include <iostream>
 #include <future>
 using namespace std;
-using namespace FILEIO;
+using namespace FileIO;
 typedef Vector3 Vector;
 
 class LshFunc {
 
 protected:
 	Vector3 a_;
-	vector<int32_t> *buckets;
 	float b_, w_;
-	unsigned char* _h;
 	int _n_buckets;
+
+	vector<int32_t> *buckets;
+	unsigned char* _h;
 public:
 
 	LshFunc() = default;
@@ -138,6 +139,7 @@ public:
 	vector<LshFunc> *function_pool;
 	  
 	unordered_map<int64_t, LSHPoint *>* lshTable;
+
 	HashTable(vector<int>LSHFunctions, int tablesize, vector<LshFunc> *function_pool, Segment *samples, int n_samples) 
 		: LSHFunctions(LSHFunctions), tablesize(tablesize), function_pool(function_pool)
 	{
@@ -348,10 +350,11 @@ void arrangement(int n_buckets, int n_tuple, int* buckets) {
 }
 vector<HashTable> hashtables;
 
-int main() {
-	LoadWaveFrontObject("d:/flow_data/tornado.obj");
-	//FILEIO::normalize();
-	FILEIO::toFStreamlines();
+int lsh_benchmark(const char* filename) {
+	LoadWaveFrontObject(filename);
+	//FileIO::normalize();
+	FileIO::toFStreamlines();
+	return 0;
 	decomposeByCurvature(2*M_PI, 1000.f);
 	initializeSecondLevel();
     cout << n_points << " points, " << n_streamlines << " stream lines and " << segments.size() << " segments\n";
@@ -387,4 +390,8 @@ int main() {
         cout << "Error: " << error << '\n';
     }
 	return 0;
+}
+
+int main() {
+	lsh_benchmark("d:/flow_data/tornado.obj");
 }

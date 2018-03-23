@@ -1,11 +1,11 @@
-#ifndef _FILEIO_H
-#define _FILEIO_H
+#ifndef _FileIO_H
+#define _FileIO_H
 #include "Vector.h"
 #include <stdint.h>
 #include <vector>
 
 #define AvailFlags(i) (1<<(i))
-namespace FILEIO {
+namespace FileIO {
 
 	extern std::vector<std::vector<Vector3>> streamlines;
 	extern Vector3** f_streamlines;
@@ -30,13 +30,13 @@ namespace FILEIO {
 
 	class Streamline {
 	private:
-		static int* sizes;
 		static size_t _max_size;
 	public:
-		static size_t size(size_t sl_pos);
+		static size_t inline size(size_t sl_pos);
 		static size_t max_size();
 		static void _calc_size(size_t sl_pos);
 		static inline void reinit();
+		static int* sizes;
 
 	};
 

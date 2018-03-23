@@ -4,7 +4,7 @@
 #include <fstream>
 #include <iostream>
 using namespace std;
-namespace FILEIO {
+namespace FileIO {
 	vector<vector<Vector3>>	streamlines;
 	Vector3 ** f_streamlines;
 	int64_t n_streamlines;
@@ -354,12 +354,15 @@ namespace FILEIO {
 
 	int* Streamline::sizes = NULL;
 	size_t Streamline::_max_size = 0;
-	size_t Streamline::size(size_t sl_pos)
+	size_t inline Streamline::size(size_t sl_pos)
 	{
-		if (sizes[sl_pos] < 0)
-			_calc_size(sl_pos);
+		//if (sizes[sl_pos] < 0)
+			//_calc_size(sl_pos); 
+		/*Earerly compute sizes instead of lazy strategy*/
 		return sizes[sl_pos];
 	}
+
+	//Deprecated
 	void Streamline::_calc_size(size_t sl_pos) {
 		sizes[sl_pos] = f_streamlines[sl_pos + 1] - f_streamlines[sl_pos];
 	}
@@ -377,12 +380,13 @@ namespace FILEIO {
 	inline void Streamline::reinit() {
 		if (sizes)
 			delete[] sizes;
-		sizes = new int[n_streamlines];
+		sizes = new int[n_streamlines + 1];
 		std::fill(sizes, sizes + n_streamlines - 1, -1);
 		for (size_t i = 0; i < n_streamlines - 1; i++) {
 			sizes[i] = f_streamlines[i + 1] - f_streamlines[i];
 		}
 		sizes[n_streamlines - 1] = n_points - (f_streamlines[n_streamlines - 1] - f_streamlines[0]);
+		sizes[n_streamlines] = n_points;
 		availiblity_flag |= AvailFlags(Format::STREAMLINE_ARRAY);
 	}
 }

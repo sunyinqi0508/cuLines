@@ -4,7 +4,7 @@
 #include <algorithm>
 
 using namespace std;
-using namespace FILEIO;
+using namespace FileIO;
 
 
 Segment::Segment(size_t line, int begin, int end):

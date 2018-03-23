@@ -3,6 +3,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 #include <Windows.h>
+#include <vector>
 #include "common.h"
 using namespace std;
 #define OPERATION(OPERAND) int _minus(int a, int b){\
@@ -36,6 +37,9 @@ int main()
 	LARGE_INTEGER begin, end, freq;
 	QueryPerformanceCounter(&begin);
 	HINSTANCE dllInstance = LoadLibrary("playground.dll");
+	vector<int> test(43);
+	
+
 	//printf("hello %x %d\n",dllInstance, GetLastError());
 	int(_stdcall *__minus)(int, int) = (int(*)(int, int))GetProcAddress(dllInstance, "_minus");
 	//printf("hello %x %d\n", *_minus, GetLastError());
@@ -49,11 +53,11 @@ int main()
 	cudaMalloc(&testMem, 16);
 	cudaMemcpy(testMem, __minus, 8, cudaMemcpyHostToDevice);
 	printf("%s\n", cudaGetErrorName(cudaGetLastError()));
-	test tt;
-	tt.val = 2;
-	tt.align_test = 'f';
+	//test tt;
+	//tt.val = 2;
+//	tt.align_test = 'f';
 	//testfunc();
-	printf("%d %d\n", tt.val, sizeof(tt));
+	//printf("%d %d\n", tt.val, sizeof(tt));
 	cudacall();
 	return 0;
 }

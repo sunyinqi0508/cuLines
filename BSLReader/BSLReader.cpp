@@ -2,7 +2,7 @@
 #include <string>
 #include <iostream>
 using namespace std;
-using namespace FILEIO;
+using namespace FileIO;
 
 #define max(a, b) ((a) > (b)? (a):(b))
 #define min(a, b) ((a) < (b)? (a):(b))
