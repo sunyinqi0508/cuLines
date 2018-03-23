@@ -348,7 +348,7 @@ void arrangement(int n_buckets, int n_tuple, int* buckets) {
 vector<HashTable> hashtables;
 
 int main() {
-	LoadWaveFrontObject("e:/flow_data/tornado.obj");
+	LoadWaveFrontObject("d:/flow_data/tornado.obj");
 	//FILEIO::normalize();
 	FILEIO::toFStreamlines();
 	decomposeByCurvature(2*M_PI, 1000.f);
