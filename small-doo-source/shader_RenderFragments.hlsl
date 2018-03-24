@@ -59,7 +59,7 @@ struct QuadPS_Input
 };
 
 // Max hardcoded.
-#define TEMPORARY_BUFFER_MAX        256
+#define TEMPORARY_BUFFER_MAX        65536
 
 float4 GetColor(uint nColor)
 {
@@ -89,7 +89,7 @@ float4 PS( QuadPS_Input input ) : SV_Target0
 	bool hasValue[MSAA_SAMPLES];
 	for (int i=0; i<MSAA_SAMPLES; ++i)
 	{
-		 result[i] = float4(0,0,0,1);
+		 result[i] = float4(0,0,0,0);
 		 allAlpha[i] = 1;
 		 hasValue[i] = false;
 	}
@@ -141,23 +141,23 @@ float4 PS( QuadPS_Input input ) : SV_Target0
 		}
 		else
 		{
-			result[k].a = 1-allAlpha[k];
+			result[k].a = 1 - allAlpha[k];
 			// final composition will do alpha blending like so:
 			// result.rgb * (result.a) + background * (1-result.a)
 			// since we allready weighted with the correct alpha, we divide once away, so that the blend state will cancel it out.
 			// would be a little nicer to change the blend state
-			result[k].rgb /= result[k].a;
+			//result[k].rgb /= result[k].a;
 			sum += result[k];
 		}
 	}
 	return sum / MSAA_SAMPLES;
 #else
-	result.a = 1-allAlpha;
+			result.a =  1 - allAlpha;
 	// final composition will do alpha blending like so:
 	// result.rgb * (result.a) + background * (1-result.a)
 	// since we allready weighted with the correct alpha, we divide once away, so that the blend state will cancel it out.
 	// would be a little nicer to change the blend state
-	result.rgb /= result.a;
+	//result.rgb /= result.a;
 	return result;
 #endif
 }

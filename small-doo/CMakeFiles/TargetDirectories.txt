@@ -1,3 +1,0 @@
-C:/Users/chengluyu/Developer/cuLines/small-doo/CMakeFiles/small_doo.dir
-C:/Users/chengluyu/Developer/cuLines/small-doo/CMakeFiles/ALL_BUILD.dir
-C:/Users/chengluyu/Developer/cuLines/small-doo/CMakeFiles/ZERO_CHECK.dir

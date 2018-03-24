@@ -102,7 +102,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 	default:
 	case 0:
-		path = std::string("E:\\flow_data\\cp\\5cp.obj");
+		path = std::string("data/tornado.obj");
 		eye = Vec3f(14, 14, 14);
 		lookAt = Vec3f(10, 10, 10);
 		q = 100;

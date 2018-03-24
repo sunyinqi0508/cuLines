@@ -264,14 +264,14 @@ private:
 		_Importance.resize(n_points);
 		_Colors.resize(n_points);
 
-		if (alpha)
+		if (0)
 			_Importance.assign(alpha, alpha + n_points);
 		else
-			std::fill(_Importance.begin(), _Importance.end(), 1);
+			std::fill(_Importance.begin(), _Importance.end(), 0.2);
         if(colors)
 		    _Colors.assign(colors, colors + n_points);
         else
-            std::fill(_Colors.begin(), _Colors.end(), 0xffa300ff);
+            std::fill(_Colors.begin(), _Colors.end(), 0xffa30000);
 
 
 		for (int i = 0; i < _NumLines; i++)
