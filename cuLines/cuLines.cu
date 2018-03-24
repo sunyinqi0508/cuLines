@@ -130,7 +130,14 @@ void cuLineHashing(//Lv.2 search
 }
 
 __global__ 
-void cuHeapify() {
+void cuHeapify(
+
+	_in_ _out_ float *variation, _in_ _out_ float*distances, _in_ _out_ float *points,
+	const int n_lines, const int n_pts
+
+) {
+
+
 
 }
 
@@ -201,6 +208,7 @@ void cuSimilarity(
 					distances[ptnum*maxNN + k] = center_dist;
 					variation[ptnum * maxNN + k] = _variation;
 				}
+
 				else break;
 
 		}
@@ -211,9 +219,14 @@ void cuSimilarity(
 void cudaLauncher();
 
 namespace cudadevice_variables {
-	extern GPU_SegmentsLv2* segslv2;  //Lv.2 hash projector 
-	extern GPU_Segments* segs;//centroid + line No. for Lv.1 LSH
-	extern float* l2buckets;
-	extern GPU_HashTable *d_hash;
-	extern GPU_Lsh_Func *d_funcs;
+
+	GPU_SegmentsLv2* segslv2;  //Lv.2 hash projector 
+	GPU_Segments* segs;//centroid + line No. for Lv.1 LSH
+	float* l2buckets;
+	GPU_HashTable *d_hash;
+	GPU_Lsh_Func *d_funcs; 
+
+	float* d_streamlines; // FileIO:: f_streamlines[0]
+	int* d_lineoffsets;// Streamline::sizes;
+
 }

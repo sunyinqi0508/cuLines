@@ -1,0 +1,3 @@
+C:/Users/sunyi/source/repos/cuLines/small-doo/CMakeFiles/small_doo.dir
+C:/Users/sunyi/source/repos/cuLines/small-doo/CMakeFiles/ALL_BUILD.dir
+C:/Users/sunyi/source/repos/cuLines/small-doo/CMakeFiles/ZERO_CHECK.dir

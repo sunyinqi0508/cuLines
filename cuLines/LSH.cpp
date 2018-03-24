@@ -23,17 +23,18 @@
 #include <fstream>
 
 using namespace std;
-using namespace FILEIO;
+using namespace FileIO;
 typedef Vector3 Vector;
 
 class LshFunc {
 
 protected:
 	Vector3 a_;
-	vector<int32_t> *buckets;
 	float b_, w_;
-	unsigned char* _h;
 	int _n_buckets;
+
+	vector<int32_t> *buckets;
+	unsigned char* _h;
 public:
 
 	LshFunc() = default;
@@ -141,6 +142,7 @@ public:
 	vector<LshFunc> *function_pool;
 	  
 	unordered_map<int64_t, LSHPoint *>* lshTable;
+
 	HashTable(vector<int>LSHFunctions, int tablesize, vector<LshFunc> *function_pool, Segment *samples, int n_samples) 
 		: LSHFunctions(LSHFunctions), tablesize(tablesize), function_pool(function_pool)
 	{
@@ -463,11 +465,14 @@ void dumpAffinityMatrix(ostream &out, vector<HashTable> &hashTables) {
     }
 }
 
-int main() {
-	LoadWaveFrontObject("E:/flow_data/GL3D_Xfieldramp_inter.list.trace.obj");
-	//FILEIO::normalize();
-	FILEIO::toFStreamlines();
-	decomposeByCurvature(2*M_PI, 1000.f);
+float *alpha;
+int lsh_benchmark(const char* filename) {
+	LoadWaveFrontObject(filename);
+	//FileIO::normalize();
+	FileIO::toFStreamlines();
+	alpha = new float[n_points];
+	std::fill(alpha, alpha + n_points, 1.f);
+  	decomposeByCurvature(2*M_PI, 1000.f);
 	initializeSecondLevel();
     cout << n_points << " points, " << n_streamlines << " stream lines and " << segments.size() << " segments\n";
 	pair<vector<LshFunc>*, int> funcs = LshFunc::create(funcpool_size, segments.data(), segments.size(), 5);
@@ -482,34 +487,9 @@ int main() {
 
 		hashtables.push_back(HashTable(func_for_table, TABLESIZE, funcs.first, segments.data(), segments.size()));
 	}
-
-    //ofstream outputFile{ "E:\\affinity.txt" };
-    //dumpAffinityMatrix(outputFile, hashtables);
-    //outputFile.close();
-
-    // load critical points
-    auto critical_pts = loadCriticalPoints("E:/flow_data/critical points/supernova.cp");
-    auto query_result = queryCriticalPoints(critical_pts, hashtables);
-    for (auto line_idx : query_result)
-        cout << line_idx << ' ';
-
-    //Stopwatch sw;
-    //for (int i = 0; i < n_points; i++) {
-    //    cout << "Query #" << i << '\n';
-    //    auto p = f_streamlines[0][i];
-    //    // ground truth
-    //    sw.start();
-    //    auto gt_result = queryGroundTruth(p);
-    //    sw.stop(); 
-    //    cout << "Time used to compute ground truth: " << sw.elapsedSeconds() << 's' << '\n';
-    //    // ANN
-    //    sw.start();
-    //    auto ann_result = queryANN(hashtables, p);
-    //    sw.stop();
-    //    cout << "Time used to do ANN query: " << sw.elapsedSeconds() << 's' << '\n';
-    //    // evaluate error
-    //    auto error = evaluateError(gt_result, ann_result);
-    //    cout << "Error: " << error << '\n';
-    //}
 	return 0;
+}
+
+int main() {
+	 return lsh_benchmark("d:/flow_data/tornado.obj");
 }

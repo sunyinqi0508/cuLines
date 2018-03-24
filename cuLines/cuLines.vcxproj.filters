@@ -27,10 +27,7 @@
     <ClInclude Include="LSH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Parameters.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Stopwatch.h">
+    <ClInclude Include="..\include\Parameters.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
