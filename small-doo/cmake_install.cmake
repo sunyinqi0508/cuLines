@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/sunyi/source/repos/cuLines/small-doo-source
+# Install script for directory: C:/Users/chengluyu/Developer/cuLines/small-doo-source
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/Users/sunyi/source/repos/cuLines/small-doo/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/Users/chengluyu/Developer/cuLines/small-doo/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

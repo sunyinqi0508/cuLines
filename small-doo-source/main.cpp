@@ -102,14 +102,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 	default:
 	case 0:
-		path = std::string("data\\tornado.obj");
+		path = std::string("E:\\flow_data\\GL3D_Xfieldramp_inter.list.trace.obj");
 		eye = Vec3f(11, 21, -25);
 		lookAt = Vec3f(10, 10, 10);
 		q = 60;
 		r = 500;
 		lambda = 1;
 		stripWidth = 0.05f;
-		totalNumCPs = 10000;
+		totalNumCPs = 30000;
 		smoothingIterations = 10;
 		break;
 	case 1:

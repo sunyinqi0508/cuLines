@@ -11,13 +11,13 @@ extern "C" {
 		_out_ pointer->f_streamlines;
 		_out_ pointer->results;
 
-		lsh_benchmark(pointer->filename);
+		initialize(pointer->filename);
 		pointer->f_streamlines = reinterpret_cast<float**>(FileIO::f_streamlines);
 		pointer->n_streamlines = FileIO::n_streamlines;
 		pointer->sizes = FileIO::Streamline::sizes;
 		pointer->n_points = FileIO::n_points;
 		//TODO: assign alpha array here;
 		pointer->alpha = alpha;
-		pointer->colors = new int[FileIO::n_points];
+		pointer->colors = 0;// new int[FileIO::n_points];
 	}
 }

@@ -4,6 +4,6 @@
 class HashTable;
 class LshFunc;
 
-int lsh_benchmark(const char*filename);
+void initialize(const char* filename);
 extern float* alpha;
 #endif

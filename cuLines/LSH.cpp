@@ -467,32 +467,39 @@ void dumpAffinityMatrix(ostream &out, vector<HashTable> &hashTables) {
 
 float *alpha;
 
-int lsh_benchmark(const char* filename) {
+void initialize(const char* filename) {
+	// load file
 	LoadWaveFrontObject(filename);
 	//FileIO::normalize();
 	FileIO::toFStreamlines();
-	alpha = new float[n_points];
-	std::fill(alpha, alpha + n_points, 1.f);
-  	decomposeByCurvature(2*M_PI, 1000.f);
+	// decomposition
+  	decomposeByCurvature(2 * M_PI, 1000.f);
+	// second level
 	initializeSecondLevel();
+	// output debug info
 	cout << n_points << " points, " << n_streamlines << " stream lines and " << segments.size() << " segments\n";
-
 	// hash function pool
 	auto funcs = LshFunc::create(funcpool_size, segments.data(), segments.size(), 5);
-
 	// create the hash tables stocastically
 	uniform_int_distribution<int> uni_dist{ 0, funcpool_size - 1};
 	for (int l = 0; l < L; l++) {
-		
 		vector<int> func_for_table;
 		for (int k = 0; k < K; k++) 
 			func_for_table.push_back(uni_dist(engine));
-
 		hashtables.push_back(HashTable(func_for_table, TABLESIZE, funcs.first, segments.data(), segments.size()));
 	}
-	return 0;
+}
+
+
+void doCriticalPointQuery(const char *cp_filename) {
+	auto pts = loadCriticalPoints(cp_filename);
+	alpha = new float[n_points];
+	std::fill(alpha, alpha + n_points, 1.f);
+
 }
 
 int main() {
-	 return lsh_benchmark("d:/flow_data/tornado.obj");
+	 initialize("e:/flow_data/tornado.obj");
+
+	 return 0;
 }

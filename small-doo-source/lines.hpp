@@ -268,19 +268,9 @@ private:
 			_Importance.assign(alpha, alpha + n_points);
 		else
 			std::fill(_Importance.begin(), _Importance.end(), 1);
-		if (0)
-			 _Colors.assign(colors, colors + n_points);
-		else
-			std::fill(_Colors.begin(), _Colors.end(), 0x49b9f9ff);
-		int ptr_pts = 0;
-		for (int j = 0; j < _NumLines; j++) {
-			for (int k = 0; k < sizes[k]; k++)
-				if(j%2)
-					_Colors[ptr_pts++] = 0x49b9f9ff;
-				else
-					_Colors[ptr_pts++] = 0xf0a20bff;
 
-		}
+		_Colors.assign(colors, colors + n_points);
+
 		for (int i = 0; i < _NumLines; i++)
 		{
 			lines[i].assign(streamlines[i], streamlines[i] + sizes[i]);
