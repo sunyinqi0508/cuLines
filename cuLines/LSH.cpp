@@ -333,6 +333,8 @@ vector<int> querySegments(vector<HashTable> &hts, Vector3 pt) {
 	return query_result;
 }
 
+// 
+
 vector<pair<float, int>> queryANN(vector<HashTable> &hts, Vector3 pt) {
 	// do first level query
 	auto query_result = querySegments(hts, pt);
@@ -427,7 +429,7 @@ vector<int> queryCriticalPoints(const vector<CriticalPoint> &query_points, vecto
 	return res;
 }
 
-// do spectral clustering
+// application: do spectral clustering
 
 float computeSimilarity(int p, int q, int windowRadius = 20) {
 	// the middle point index of segment p and segment q
@@ -490,12 +492,17 @@ void initialize(const char* filename) {
 	}
 }
 
-
 void doCriticalPointQuery(const char *cp_filename) {
 	auto pts = loadCriticalPoints(cp_filename);
+	auto curves = queryCriticalPoints(pts, hashtables);
 	alpha = new float[n_points];
-	std::fill(alpha, alpha + n_points, 1.f);
-
+	std::fill(alpha, alpha + n_points, 0.f);
+	cout << "doCriticalPointQuery\n";
+	cout << curves.size() << '/' << n_streamlines << " found\n";
+	for (auto line_idx : curves) {
+		for (int i = getGlobalIndex(line_idx, 0); i < streamlines[line_idx].size(); i++)
+			alpha[i] = 1.f;
+	}
 }
 
 int main() {

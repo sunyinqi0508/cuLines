@@ -268,8 +268,11 @@ private:
 			_Importance.assign(alpha, alpha + n_points);
 		else
 			std::fill(_Importance.begin(), _Importance.end(), 1);
+        if(colors)
+		    _Colors.assign(colors, colors + n_points);
+        else
+            std::fill(_Colors.begin(), _Colors.end(), 0xffa300ff);
 
-		_Colors.assign(colors, colors + n_points);
 
 		for (int i = 0; i < _NumLines; i++)
 		{

@@ -112,7 +112,7 @@ void PS( QuadPS_Input input )
 #if defined(ALPHA_DIRECT)
 		float alpha = gi;// (p) / (p + pow(saturate(1 - gi), 2 * Lambda) * (R*gf + Q * gb));
 #else
-		float alpha =  (p) / (p + pow(saturate(1 - gi), 2 * Lambda) * (R*gf + Q * gb));
+        float alpha = (p) / (p + pow(saturate(1 - gi), 2 * Lambda) * (R*gf + Q * gb));
 #endif
 		alpha = saturate(alpha);
 
