@@ -264,10 +264,8 @@ private:
 		_Importance.resize(n_points);
 		_Colors.resize(n_points);
 
-<<<<<<< HEAD
 		if (alpha)
-=======
->>>>>>> b474210fd47d6c9a4d8374701a0bf1b740dfb3d8
+
 			_Importance.assign(alpha, alpha + n_points);
 		else
 			std::fill(_Importance.begin(), _Importance.end(), 0.2);

@@ -36,19 +36,13 @@ namespace FileIO {
 		static size_t max_size();
 		static void _calc_size(size_t sl_pos);
 		static inline void reinit();
-<<<<<<< HEAD
 		static int getlineof(int p);
 		static int* sizes;
 		static int* offsets;
 		static int* pt_to_line;
-=======
->>>>>>> b474210fd47d6c9a4d8374701a0bf1b740dfb3d8
 
 	};
 
 }
 
-<<<<<<< HEAD
 #endif
-=======
->>>>>>> b474210fd47d6c9a4d8374701a0bf1b740dfb3d8
