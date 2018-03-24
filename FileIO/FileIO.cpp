@@ -143,7 +143,10 @@ namespace FileIO {
 		while (ptr > 0 && (buffer[ptr] != '\n'))ptr--;
 		buffer[ptr] = '\0';
 
+<<<<<<< HEAD
 		f_streamlines = new Vector3*[n_lines + 1];
+=======
+>>>>>>> b474210fd47d6c9a4d8374701a0bf1b740dfb3d8
 		f_streamlines[0] = new Vector3[n_p];
 
 		size_t ptr_l = 0, ptr_p = 0;
@@ -170,7 +173,10 @@ namespace FileIO {
 				break;
 			buffer++;
 		}
+<<<<<<< HEAD
 		f_streamlines[n_lines] = f_streamlines[0] + n_p;
+=======
+>>>>>>> b474210fd47d6c9a4d8374701a0bf1b740dfb3d8
 		Streamline::reinit();
 
 		fclose(fp);
@@ -231,14 +237,20 @@ namespace FileIO {
 
 			n_streamlines = streamlines.size();
 			n_points = 0;
+<<<<<<< HEAD
 			f_streamlines = new Vector3*[n_streamlines + 1];
+=======
+>>>>>>> b474210fd47d6c9a4d8374701a0bf1b740dfb3d8
 			for (vector<Vector3> line : streamlines)
 				n_points += line.size();
 
 			f_streamlines[0] = new Vector3[n_points];
 			int ptr_fs = 1;
 			for (vector<Vector3> line : streamlines) {
+<<<<<<< HEAD
 				f_streamlines[ptr_fs] = f_streamlines[ptr_fs - 1] + line.size();
+=======
+>>>>>>> b474210fd47d6c9a4d8374701a0bf1b740dfb3d8
 				int j = 0;
 				for (Vector3 vertex : line) {
 					f_streamlines[ptr_fs - 1][j++] = vertex;
@@ -264,7 +276,10 @@ namespace FileIO {
 			_size = line.size();
 			fwrite(&_size, sizeof(int64_t), 1, fp);
 		}
+<<<<<<< HEAD
 		//fseek(fp, -(long)sizeof(int64_t), SEEK_END);
+=======
+>>>>>>> b474210fd47d6c9a4d8374701a0bf1b740dfb3d8
 		for (vector<Vector3>& line : streamlines)
 			for (Vector3& vertex : line)
 				fwrite(vertex, sizeof(vertex), 1, fp);
@@ -335,10 +350,13 @@ namespace FileIO {
 
 		n_streamlines = *((int64_t*)buffer);
 		f_streamlines = (Vector3 **)buffer + 1;
+<<<<<<< HEAD
 		f_streamlines[0] = (Vector3*)(f_streamlines + n_streamlines + 1);
 		for (int i = 1; i <= n_streamlines; i++)
 			f_streamlines[i] = f_streamlines[i - 1] + *((int64_t*)f_streamlines + i);
 		n_points = (file_size - sizeof(int64_t)*(n_streamlines + 2)) / sizeof(Vector3);
+=======
+>>>>>>> b474210fd47d6c9a4d8374701a0bf1b740dfb3d8
 		Streamline::reinit();
 		fclose(fp);
 
@@ -353,8 +371,11 @@ namespace FileIO {
 	}
 
 	int* Streamline::sizes = NULL;
+<<<<<<< HEAD
 	int* Streamline::pt_to_line = NULL;
 	int* Streamline::offsets = NULL;
+=======
+>>>>>>> b474210fd47d6c9a4d8374701a0bf1b740dfb3d8
 	size_t Streamline::_max_size = 0;
 	size_t inline Streamline::size(size_t sl_pos)
 	{
@@ -378,6 +399,7 @@ namespace FileIO {
 		return _max_size;
 
 	}
+<<<<<<< HEAD
 	int Streamline::getlineof(int p) {
 		return pt_to_line[p];
 	}
@@ -405,6 +427,9 @@ namespace FileIO {
 		sizes[n_streamlines] = n_points;
 
 
+=======
+
+>>>>>>> b474210fd47d6c9a4d8374701a0bf1b740dfb3d8
 		availiblity_flag |= AvailFlags(Format::STREAMLINE_ARRAY);
 	}
 }
@@ -417,4 +442,8 @@ namespace FileIO {
 //		reinit();
 //		_init = true;
 //	}
+<<<<<<< HEAD
 //}
+=======
+//}
+>>>>>>> b474210fd47d6c9a4d8374701a0bf1b740dfb3d8

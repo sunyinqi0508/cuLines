@@ -181,6 +181,7 @@ public:
 
 		}
 	}
+<<<<<<< HEAD
 	void Query(vector<int>& results, Vector3 point, bool from_distinct_lines = true, unordered_map<int,int> *res = 0) {
 
 		int64_t fingerprint1 = 0, fingerprint2 = 0;
@@ -190,6 +191,8 @@ public:
 			res = new unordered_map<int, int>();
 			noreturn = true;
 		}
+=======
+>>>>>>> b474210fd47d6c9a4d8374701a0bf1b740dfb3d8
 
 		for (int j = 0; j < LSHFunctions.size(); j++) {
 			
@@ -211,23 +214,35 @@ public:
 		if(lshTable[fingerprint1].find(fingerprint2)!= lshTable[fingerprint1].end())
 			for (int resultint_pt : lshTable[fingerprint1][fingerprint2]->ptr_segments) {
 				const Segment this_seg = segments[resultint_pt];
+<<<<<<< HEAD
 				unordered_map<int, int>::iterator findings = res->find(this_seg.line);
 			
 				if (findings != res->end()) {
+=======
+				unordered_map<int, int>::iterator findings = res.find(this_seg.line);
+			
+				if (findings != res.end()) {
+>>>>>>> b474210fd47d6c9a4d8374701a0bf1b740dfb3d8
 					int& curr_seg = findings->second;
 					if ((point - this_seg.centroid).length() < (point - segments[curr_seg].centroid).length()) {
 						curr_seg = resultint_pt;
 					}
 				}
 				else
+<<<<<<< HEAD
 					(*res)[this_seg.line] = resultint_pt;
 			}
 		unordered_map<int, int>::iterator it = res->begin();
+=======
+>>>>>>> b474210fd47d6c9a4d8374701a0bf1b740dfb3d8
 
 		if (from_distinct_lines) {
 			auto seg_of_lines = new int[n_streamlines];
 			std::fill(seg_of_lines, seg_of_lines + n_streamlines, -1);
+<<<<<<< HEAD
 			while (it != res->end()) {
+=======
+>>>>>>> b474210fd47d6c9a4d8374701a0bf1b740dfb3d8
 				auto line_idx = segments[it->second].line;
 				if (seg_of_lines[line_idx] == -1)
 					seg_of_lines[line_idx] = it->second;
@@ -243,6 +258,7 @@ public:
 					results.emplace_back(seg_of_lines[i]);
 			delete[] seg_of_lines;
 		} else {
+<<<<<<< HEAD
 			if (noreturn)
 			{
 				while (it != res->end()) {
@@ -250,6 +266,8 @@ public:
 					it++;
 				}
 				delete res;
+=======
+>>>>>>> b474210fd47d6c9a4d8374701a0bf1b740dfb3d8
 			}
 		}
 	}
@@ -475,6 +493,7 @@ void dumpAffinityMatrix(ostream &out, vector<HashTable> &hashTables) {
 	}
 }
 
+<<<<<<< HEAD
 float computeSimilarity_pt(int p, int q, int windowRadius = 20) {
 
 	Range<int> window{ -windowRadius, +windowRadius };
@@ -504,12 +523,18 @@ float computeSimilarity_pt(int p, int q, int windowRadius = 20) {
 	return sum / static_cast<float>(common.length());
 
 }
+=======
+>>>>>>> b474210fd47d6c9a4d8374701a0bf1b740dfb3d8
 float *alpha;
 
 void initialize(const char* filename) {
 	// load file
 	LoadWaveFrontObject(filename);
+<<<<<<< HEAD
 	FileIO::normalize(1);
+=======
+	//FileIO::normalize();
+>>>>>>> b474210fd47d6c9a4d8374701a0bf1b740dfb3d8
 	FileIO::toFStreamlines();
 	// decomposition
   	decomposeByCurvature(2 * M_PI, 1000.f);
@@ -527,6 +552,7 @@ void initialize(const char* filename) {
 			func_for_table.push_back(uni_dist(engine));
 		hashtables.push_back(HashTable(func_for_table, TABLESIZE, funcs.first, segments.data(), segments.size()));
 	}
+<<<<<<< HEAD
 	vector<int> _res;
 	alpha = new float[n_points];
 	int max_alpha = -1;
@@ -552,6 +578,8 @@ void initialize(const char* filename) {
 	}
 	for (int i = 0; i < n_points; i++)
 		alpha[i] /= max_alpha;
+=======
+>>>>>>> b474210fd47d6c9a4d8374701a0bf1b740dfb3d8
 }
 
 void doCriticalPointQuery(const char *cp_filename) {

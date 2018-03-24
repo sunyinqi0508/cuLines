@@ -12,7 +12,10 @@ extern "C" {
 		_out_ pointer->results;
 
 		initialize(pointer->filename);
+<<<<<<< HEAD
 		//doCriticalPointQuery("E:\\flow_data\\cp\\5cp.cp");
+=======
+>>>>>>> b474210fd47d6c9a4d8374701a0bf1b740dfb3d8
 		pointer->f_streamlines = reinterpret_cast<float**>(FileIO::f_streamlines);
 		pointer->n_streamlines = FileIO::n_streamlines;
 		pointer->sizes = FileIO::Streamline::sizes;

@@ -32,9 +32,14 @@ struct Communicator {
 
 template<typename T>
 inline T constexpr cubic(const T v) noexcept { return v*v*v; }
+<<<<<<< HEAD
 template<typename T>
 inline T constexpr square(const T v) noexcept { return v * v; }
 #include <random>
 extern std::mt19937_64 engine;
 extern float gaussianDist(float x);
 #endif
+=======
+
+
+>>>>>>> b474210fd47d6c9a4d8374701a0bf1b740dfb3d8
