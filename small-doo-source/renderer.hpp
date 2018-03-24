@@ -146,8 +146,11 @@ class Renderer
 					{ "IDB",  0, DXGI_FORMAT_R32_SINT, 1, sizeof(int) * 2,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
 					{ "ALPHAA",  0, DXGI_FORMAT_R32_FLOAT, 2, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
 					{ "ALPHAB",  0, DXGI_FORMAT_R32_FLOAT, 2, sizeof(float) * 2,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+					{ "COLORA",  0, DXGI_FORMAT_R32_SINT, 3, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+					{ "COLORB",  0, DXGI_FORMAT_R32_SINT, 3, sizeof(float) * 2,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+
 				};
-				HRESULT hr = Device->CreateInputLayout(layout, 6, blobLineShader_HQ, sizeLineShader_HQ, &_InputLayout_Line_HQ);
+				HRESULT hr = Device->CreateInputLayout(layout, 8, blobLineShader_HQ, sizeLineShader_HQ, &_InputLayout_Line_HQ);
 				if (FAILED(hr))	return false;
 			}
 

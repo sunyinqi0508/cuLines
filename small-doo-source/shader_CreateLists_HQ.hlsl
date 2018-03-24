@@ -61,6 +61,8 @@ struct VS_INPUT10
 	int IDB : IDB;
 	float AlphaA : ALPHAA;
 	float AlphaB : ALPHAB;
+	int ColorA : COLORA;
+	int ColorB : COLORB;
 };
 
 struct GS_INPUT10
@@ -71,6 +73,8 @@ struct GS_INPUT10
 	int IDB : IDB;
 	float AlphaA : ALPHAA;
 	float AlphaB : ALPHAB;
+	int ColorA : COLORA;
+	int ColorB : COLORB;
 };
 
 struct GS_OUTPUT10
@@ -80,7 +84,7 @@ struct GS_OUTPUT10
 	float3 VRCDirection : TEXCOORD1;
 	float Alpha : ALPHA;
     float2 TexCoord : TEXCOORD2;
-	int ID : ID;
+	int Color : COLOR;
 };
 
 struct PS_INPUT10
@@ -90,7 +94,7 @@ struct PS_INPUT10
 	float3 VRCDirection : TEXCOORD1;
 	float Alpha : ALPHA;
 	float2 TexCoord : TEXCOORD2;
-	int ID : ID;
+	int Color : COLOR;
 #ifdef MSAA_SAMPLES
 	uint nCoverage : SV_Coverage;
 #endif
@@ -108,6 +112,8 @@ GS_INPUT10 VS(VS_INPUT10 input)
 	output.IDB = input.IDB;
 	output.AlphaA = input.AlphaA;
 	output.AlphaB = input.AlphaB;
+	output.ColorA = input.ColorA;
+	output.ColorB = input.ColorB;
     return output;
 }
 
@@ -149,25 +155,32 @@ void GS(line GS_INPUT10 input[2], inout TriangleStream<GS_OUTPUT10> output)
 		vertex[0].TexCoord = float2(0, t0);
 		vertex[0].VRCDirection = dir3_0;
 		vertex[0].Alpha = alpha0;
-		vertex[0].ID = input[1].IDA;
+		vertex[0].Color = input[1].ColorA;
+	//	vertex[0].ID = input[1].IDA;
 
 		vertex[1].Position = p0 - off0;
 		vertex[1].TexCoord = float2(1, t0);
 		vertex[1].VRCDirection = dir3_0;
 		vertex[1].Alpha = alpha0;
-		vertex[1].ID = input[1].IDA;
+		vertex[1].Color = input[1].ColorA;
+
+	//	vertex[1].ID = input[1].IDA;
 
 		vertex[2].Position = p1 + off1;
 		vertex[2].TexCoord = float2(0, t1);
 		vertex[2].VRCDirection = dir3_1;
 		vertex[2].Alpha = alpha1;
-		vertex[2].ID = input[0].IDB;
+		vertex[2].Color = input[0].ColorB;
+
+	//	vertex[2].ID = input[0].IDB;
 
 		vertex[3].Position = p1 - off1;
 		vertex[3].TexCoord = float2(1, t1);
 		vertex[3].VRCDirection = dir3_1;
 		vertex[3].Alpha = alpha1;
-		vertex[3].ID = input[0].IDB;
+		vertex[3].Color = input[0].ColorB;
+
+	//	vertex[3].ID = input[0].IDB;
 		for (int i = 0; i < 4; i++)
 		{
 			vertex[i].VRCPosition = vertex[i].Position.xyz;
@@ -182,7 +195,7 @@ void GS(line GS_INPUT10 input[2], inout TriangleStream<GS_OUTPUT10> output)
 // Pixel Shader
 //--------------------------------------------------------------------------------------
 
-void computeColor(float2 texCoord, float3 vrcPositionNormalized, float3 vrcDirection, out float4 color)
+void computeColor(float2 texCoord, float3 vrcPositionNormalized, float3 vrcDirection, int PointColor,  out float4 color)
 {
 	float halfDistCenter = abs(texCoord.x - 0.5);
 	if (halfDistCenter * 2 > HaloPortion)
@@ -191,7 +204,13 @@ void computeColor(float2 texCoord, float3 vrcPositionNormalized, float3 vrcDirec
 	}
 	else
 	{
-		float4 res = LineColor;
+		float4 f_ptcolor;
+		f_ptcolor.r = ((PointColor >>24)& 0xff) / 255.f;
+		f_ptcolor.g = ((PointColor >>16) & 0xff) / 255.f;
+		f_ptcolor.b = ((PointColor >>8) & 0xff) / 255.f;
+		f_ptcolor.a = 0;// ((PointColor >> 0) & 0xff) / 255.f;
+
+		float4 res = f_ptcolor;
 		float3 LT	= vrcPositionNormalized;
 		float3 VT	= vrcPositionNormalized;
 		float DL	= dot(vrcDirection, LT);
@@ -206,17 +225,17 @@ void PS( PS_INPUT10 input)
 {
 	float4 color = float4(0,0,0,0);
 	float depth = 0;
-
+	//input.Color = ;
 #ifdef MSAA_SAMPLES
 	for (uint s=0; s<MSAA_SAMPLES; ++s)
 	{
 		float4 c = float4(0,0,0,0);
-		computeColor(getMSAATexCoord(input.TexCoord, s), normalize(input.VRCPosition), input.VRCDirection, c);
+		computeColor(getMSAATexCoord(input.TexCoord, s), normalize(input.VRCPosition), input.VRCDirection, input.Color, c);
 		color += c;
 	}
 	color /= MSAA_SAMPLES;
 #else
-	computeColor(input.TexCoord, normalize(input.VRCPosition), input.VRCDirection, color);
+	computeColor(input.TexCoord, normalize(input.VRCPosition), input.VRCDirection, input.Color, color);
 #endif
 
 

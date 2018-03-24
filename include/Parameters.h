@@ -8,7 +8,11 @@ constexpr int64_t Prime = (1ll << 32) - 5;
 constexpr int maxNN = 64, similarity_window= 8;
 #endif
 
+
+//UI: data from dll or file
 #define DLL
+
+//Shader: Direct alpha output?
 #define ALPHA_DIRECT
 
 #endif
