@@ -8,6 +8,7 @@
 #include "Segmentation.h"
 #include "Parameters.h"
 #include "Stopwatch.h"
+#include "Range.h"
 
 #include <stdint.h>
 
@@ -19,6 +20,8 @@
 #include <algorithm>
 #include <iostream>
 #include <future>
+#include <fstream>
+
 using namespace std;
 using namespace FILEIO;
 typedef Vector3 Vector;
@@ -274,7 +277,7 @@ vector<pair<float, int>> queryGroundTruth(Vector3 pt) {
     for (int i = 0; i < n_streamlines; i++) {
         auto nearest_dist = numeric_limits<float>::infinity();
         Vector *nearest_vec = nullptr;
-        auto n = &f_streamlines[i + 1][0] - &f_streamlines[i][0];
+        auto n = static_cast<int>(streamlines[i].size());
         for (int j = 0; j < n; j++) {
             auto dist = f_streamlines[i][j].distance(pt);
             if (dist < nearest_dist) {
@@ -291,7 +294,12 @@ vector<pair<float, int>> queryGroundTruth(Vector3 pt) {
     return result;
 }
 
-vector<pair<float, int>> queryANN(vector<HashTable> &hts, Vector3 pt) {
+void segmentIndexToLineIndex(vector<int> &indexes) {
+    for (auto &idx : indexes)
+        idx = static_cast<int>(segments[idx].line);
+}
+
+vector<int> querySegments(vector<HashTable> &hts, Vector3 pt) {
     // do first level query
     vector<int> query_result;
     auto seg_of_lines = new int[n_streamlines];
@@ -315,15 +323,25 @@ vector<pair<float, int>> queryANN(vector<HashTable> &hts, Vector3 pt) {
             }
         }
     }
+    query_result.clear();
+    for (int i = 0; i < n_streamlines; i++)
+        if (seg_of_lines[i] >= 0)
+            query_result.emplace_back(i);
+    delete[] seg_of_lines;
+    return query_result;
+}
+
+vector<pair<float, int>> queryANN(vector<HashTable> &hts, Vector3 pt) {
+    // do first level query
+    auto query_result = querySegments(hts, pt);
     // do second level query
     vector<pair<float, int>> result;
-    for (int i = 0; i < n_streamlines; i++)
-        if (seg_of_lines[i] >= 0) {
-            auto nearest = second_level[seg_of_lines[i]].nearest(pt);
-            auto nearest_glob_idx = getGlobalIndex(segments[i].line, nearest);
-            auto nearest_dist = f_streamlines[0][nearest_glob_idx].distance(pt);
-            result.emplace_back(nearest_dist, nearest_glob_idx);
-        }
+    for (auto seg_idx : query_result) {
+        auto nearest = second_level[seg_idx].nearest(pt);
+        auto nearest_glob_idx = getGlobalIndex(segments[seg_idx].line, nearest);
+        auto nearest_dist = f_streamlines[0][nearest_glob_idx].distance(pt);
+        result.emplace_back(nearest_dist, nearest_glob_idx);
+    }
     sort(begin(result), end(result), compareFirstOnly<float, int>);
     return result;
 }
@@ -348,8 +366,105 @@ void arrangement(int n_buckets, int n_tuple, int* buckets) {
 }
 vector<HashTable> hashtables;
 
+// do application on critical points query
+
+enum class CriticalPointType : int {
+    RepelNode = 0x0,
+    RepelFocus = 0x4,
+    RepelNodeSaddle = 0x1,
+    RepelFocusSaddle = 0x5,
+    AttractNodeSaddle = 0x3,
+    AttractFocusSaddle = 0x7,
+    AttractNode = 0x2,
+    AttractFocus = 0x6
+};
+
+struct CriticalPoint : public Vector3 {
+    CriticalPointType type;
+    float scale;
+};
+
+template <typename T>
+inline void readRaw(std::istream &in, T &x) {
+    in.read(reinterpret_cast<char*>(&x), sizeof(T));
+}
+
+std::vector<CriticalPoint> loadCriticalPoints(const char *filename) {
+    std::ifstream inputFile{ filename, std::ifstream::binary };
+    uint32_t n_points;
+    readRaw(inputFile, n_points);
+    std::vector<CriticalPoint> pts{ n_points };
+    for (int i = 0; i < n_points; i++)
+        readRaw<Vector3>(inputFile, pts[i]);
+    for (int i = 0; i < n_points; i++)
+        readRaw(inputFile, pts[i].type);
+    for (int i = 0; i < n_points; i++)
+        readRaw(inputFile, pts[i].scale);
+    return pts;
+}
+
+vector<int> queryCriticalPoints(const vector<CriticalPoint> &query_points, vector<HashTable> &hashTables) {
+    std::vector<bool> mark;
+    mark.assign(n_streamlines, false);
+    int total_marked = 0;
+    for (auto &p : query_points) {
+        auto query_result = querySegments(hashtables, p);
+        segmentIndexToLineIndex(query_result);
+        for (auto line_idx : query_result) {
+            if (!mark[line_idx]) {
+                mark[line_idx] = true;
+                total_marked++;
+            }
+        }
+    }
+    std::vector<int> res;
+    res.reserve(total_marked);
+    for (int i = 0; i < n_streamlines; i++)
+        if (mark[i])
+            res.emplace_back(i);
+    return res;
+}
+
+// do spectral clustering
+
+float computeSimilarity(int p, int q, int windowRadius = 20) {
+    // the middle point index of segment p and segment q
+    auto p_middle = (segments[p].end + segments[p].begin) / 2;
+    auto q_middle = (segments[q].end + segments[q].begin) / 2;
+    // range of the window
+    Range<int> window{ -windowRadius, +windowRadius };
+    auto p_range = window + p_middle;
+    auto q_range = window + q_middle;
+    // clamp the window in the boundary of segment
+    p_range.clampBy({ segments[p].begin, segments[p].end - 1 });
+    q_range.clampBy({ segments[q].begin, segments[q].end - 1 });
+    // find the common part
+    auto common = (p_range -= p_middle).intersect(q_range -= q_middle);
+    auto sum = 0.f;
+    auto p_curve = f_streamlines[segments[p].line];
+    auto q_curve = f_streamlines[segments[q].line];
+    for (int i = common.left; i <= common.right; i++) {
+        auto d = p_curve[p_middle + i].distance(q_curve[q_middle + i]);
+        sum += d * d;
+    }
+    return sum / static_cast<float>(common.length());
+}
+
+void dumpAffinityMatrix(ostream &out, vector<HashTable> &hashTables) {
+    // foreach centroid of segments
+    out << segments.size() << '\n';
+    for (size_t i = 0; i < segments.size(); i++) {
+        auto ann_segments = querySegments(hashTables, segments[i].centroid);
+        for (auto seg_idx : ann_segments) {
+            out << i << ' '
+                << seg_idx << ' '
+                << computeSimilarity(i, seg_idx) << '\n';
+        }
+    }
+}
+
 int main() {
-	LoadWaveFrontObject("d:/flow_data/tornado.obj");
+	LoadWaveFrontObject("E:/flow_data/GL3D_Xfieldramp_inter.list.trace.obj");
 	//FILEIO::normalize();
 	FILEIO::toFStreamlines();
 	decomposeByCurvature(2*M_PI, 1000.f);
@@ -367,24 +482,34 @@ int main() {
 
 		hashtables.push_back(HashTable(func_for_table, TABLESIZE, funcs.first, segments.data(), segments.size()));
 	}
-    
-    Stopwatch sw;
-    for (int i = 0; i < n_points; i++) {
-        cout << "Query #" << i << '\n';
-        auto p = f_streamlines[0][i];
-        // ground truth
-        sw.start();
-        auto gt_result = queryGroundTruth(p);
-        sw.stop();
-        cout << "Time used to compute ground truth: " << sw.elapsedSeconds() << 's' << '\n';
-        // ANN
-        sw.start();
-        auto ann_result = queryANN(hashtables, p);
-        sw.stop();
-        cout << "Time used to do ANN query: " << sw.elapsedSeconds() << 's' << '\n';
-        // evaluate error
-        auto error = evaluateError(gt_result, ann_result);
-        cout << "Error: " << error << '\n';
-    }
+
+    //ofstream outputFile{ "E:\\affinity.txt" };
+    //dumpAffinityMatrix(outputFile, hashtables);
+    //outputFile.close();
+
+    // load critical points
+    auto critical_pts = loadCriticalPoints("E:/flow_data/critical points/supernova.cp");
+    auto query_result = queryCriticalPoints(critical_pts, hashtables);
+    for (auto line_idx : query_result)
+        cout << line_idx << ' ';
+
+    //Stopwatch sw;
+    //for (int i = 0; i < n_points; i++) {
+    //    cout << "Query #" << i << '\n';
+    //    auto p = f_streamlines[0][i];
+    //    // ground truth
+    //    sw.start();
+    //    auto gt_result = queryGroundTruth(p);
+    //    sw.stop(); 
+    //    cout << "Time used to compute ground truth: " << sw.elapsedSeconds() << 's' << '\n';
+    //    // ANN
+    //    sw.start();
+    //    auto ann_result = queryANN(hashtables, p);
+    //    sw.stop();
+    //    cout << "Time used to do ANN query: " << sw.elapsedSeconds() << 's' << '\n';
+    //    // evaluate error
+    //    auto error = evaluateError(gt_result, ann_result);
+    //    cout << "Error: " << error << '\n';
+    //}
 	return 0;
 }
