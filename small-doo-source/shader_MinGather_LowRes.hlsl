@@ -108,7 +108,12 @@ void PS( QuadPS_Input input )
 		float gb = gall - gf - gi*gi;
 
 		float p = 1;
-		float alpha = (p) / ( p + pow(saturate(1-gi), 2*Lambda) * ( R*gf + Q*gb ) );
+
+#if defined(ALPHA_DIRECT)
+		float alpha = gi;// (p) / (p + pow(saturate(1 - gi), 2 * Lambda) * (R*gf + Q * gb));
+#else
+		float alpha =  (p) / (p + pow(saturate(1 - gi), 2 * Lambda) * (R*gf + Q * gb));
+#endif
 		alpha = saturate(alpha);
 
 		// which control point does this fragment belong to?

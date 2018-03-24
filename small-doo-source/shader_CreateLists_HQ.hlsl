@@ -47,6 +47,7 @@ Texture2DMS<float> DepthBuffer : register( t0 );
 #else
 Texture2D<float> DepthBuffer : register( t0 );
 #endif
+Texture2D<int> Colors: register( t1 );
 
 //-------------------------------------------------------------------------
 // Layouts
@@ -65,7 +66,7 @@ struct VS_INPUT10
 struct GS_INPUT10
 {
 	float4 PositionA : POSITIONA;
-	float4 PositionB : POSITIONB;
+	float4 PositionB : POSITIONB; 
 	int IDA : IDA;
 	int IDB : IDB;
 	float AlphaA : ALPHAA;
@@ -79,6 +80,7 @@ struct GS_OUTPUT10
 	float3 VRCDirection : TEXCOORD1;
 	float Alpha : ALPHA;
     float2 TexCoord : TEXCOORD2;
+	int ID : ID;
 };
 
 struct PS_INPUT10
@@ -88,6 +90,7 @@ struct PS_INPUT10
 	float3 VRCDirection : TEXCOORD1;
 	float Alpha : ALPHA;
 	float2 TexCoord : TEXCOORD2;
+	int ID : ID;
 #ifdef MSAA_SAMPLES
 	uint nCoverage : SV_Coverage;
 #endif
@@ -146,22 +149,25 @@ void GS(line GS_INPUT10 input[2], inout TriangleStream<GS_OUTPUT10> output)
 		vertex[0].TexCoord = float2(0, t0);
 		vertex[0].VRCDirection = dir3_0;
 		vertex[0].Alpha = alpha0;
+		vertex[0].ID = input[1].IDA;
 
 		vertex[1].Position = p0 - off0;
 		vertex[1].TexCoord = float2(1, t0);
 		vertex[1].VRCDirection = dir3_0;
 		vertex[1].Alpha = alpha0;
+		vertex[1].ID = input[1].IDA;
 
 		vertex[2].Position = p1 + off1;
 		vertex[2].TexCoord = float2(0, t1);
 		vertex[2].VRCDirection = dir3_1;
 		vertex[2].Alpha = alpha1;
+		vertex[2].ID = input[0].IDB;
 
 		vertex[3].Position = p1 - off1;
 		vertex[3].TexCoord = float2(1, t1);
 		vertex[3].VRCDirection = dir3_1;
 		vertex[3].Alpha = alpha1;
-
+		vertex[3].ID = input[0].IDB;
 		for (int i = 0; i < 4; i++)
 		{
 			vertex[i].VRCPosition = vertex[i].Position.xyz;

@@ -161,6 +161,47 @@ public:
 			if (FAILED(Device->CreateShaderResourceView(_LineID, &srv, &_SrvLineID))) return false;
 		}
 
+		// Create Color Texture
+		//D3D11_TEXTURE1D_DESC descColor;
+		//ZeroMemory(&descColor, sizeof(D3D11_TEXTURE1D_DESC));
+		//descColor.Width = _NumLines;
+		//descColor.MipLevels = 1;
+		//descColor.ArraySize = 1;
+		//descColor.Format = DXGI_FORMAT_R32_TYPELESS;
+		//descColor.Usage = D3D11_USAGE_DEFAULT;
+		//
+		//descColor.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+		//descColor.CPUAccessFlags = 0;
+		//descColor.MiscFlags = 0;
+		//D3D11_SUBRESOURCE_DATA *d3d11LineColorData;
+		//ZeroMemory(d3d11LineColorData, sizeof(D3D11_SUBRESOURCE_DATA));
+		//d3d11LineColorData->pSysMem = _LineColor;
+		//ID3D11Texture1D* pDSTexture;
+		//auto hr = Device->CreateTexture1D(&descColor, d3d11LineColorData, &pDSTexture);
+
+		//// Create the depth stencil view
+		//D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
+		//ZeroMemory(&descDSV, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
+		//descDSV.Format = DXGI_FORMAT_D32_FLOAT;
+		////if (_BackBufferSurfaceDesc.SampleDesc.Count == 1 && _BackBufferSurfaceDesc.SampleDesc.Quality == 0)
+		//	//descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		///*else */
+		//
+		//descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE1DARRAY;
+		//descDSV.Texture2D.MipSlice = 0;
+		//
+
+		//// Create a shader resource view on the depth buffer
+		//D3D11_SHADER_RESOURCE_VIEW_DESC resDesc;
+		//ZeroMemory(&resDesc, sizeof(resDesc));
+		//resDesc.Format = DXGI_FORMAT_R32_FLOAT;
+		//resDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE1DARRAY;
+		//resDesc.Texture1D.MostDetailedMip = 0;
+		//resDesc.Texture1D.MipLevels = 1;
+		//hr = Device->CreateShaderResourceView(pDSTexture, &resDesc, &_SrvLineColor);
+
+		//if (pDSTexture) { pDSTexture->Release(); pDSTexture = NULL; }
+
 		return true;
 	}
 
@@ -191,6 +232,7 @@ public:
 		UINT strides[] = { sizeof(float) * 3, sizeof(int), sizeof(float) };
 		UINT offsets[] = { 0, 0, 0 };
 		ImmediateContext->IASetVertexBuffers(0, 3, vbs, strides, offsets);
+		printf("%d \n", GetTotalNumberOfVertices() - 2);
 		ImmediateContext->Draw(GetTotalNumberOfVertices() - 2, 0);
 	}
 
@@ -237,7 +279,7 @@ private:
 
 		printf("Proc %x in Module %x Loaded with error code: %d\n", transfer, similarity_dll, GetLastError());
 
-		Communicator *comm = (Communicator *)malloc(sizeof(Communicator));
+		Communicator *comm = new Communicator(); 
 		/* Setting up paras*/
 		comm->filename = path.c_str();
 			
@@ -250,9 +292,14 @@ private:
 		_NumLines = comm->n_streamlines;
 		const int* sizes = comm->sizes;
 		const int n_points = comm->n_points;
+		const float* alpha = comm->alpha;
 		lines.resize(_NumLines);
 		_Importance.resize(n_points);
-		std::fill(_Importance.begin(), _Importance.end(), 1);
+		if (alpha)
+			_Importance.assign(alpha, alpha + n_points);
+		else
+			std::fill(_Importance.begin(), _Importance.end(), 1);
+
 		for (int i = 0; i < _NumLines; i++)
 		{
 			lines[i].assign(streamlines[i], streamlines[i] + sizes[i]);
@@ -503,6 +550,7 @@ private:
 
 	ID3D11Buffer* _LineID;		// stores for every control point the lineID (used for smoothing)
 	ID3D11ShaderResourceView* _SrvLineID;
+	ID3D11ShaderResourceView* _SrvLineColor;
 
 	std::vector<Vec3f> _Positions;
 	std::vector<int> _ID;
@@ -512,5 +560,6 @@ private:
 	std::vector<float> _LineLengths;
 	std::vector<int> _NumberOfControlPointsOfLine;
 	std::vector<unsigned int> _ControlPointLineIndices;
+	int* _LineColor;
 
 };

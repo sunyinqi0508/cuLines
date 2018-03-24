@@ -162,7 +162,6 @@
     <ClInclude Include="LSH.h" />
     <ClInclude Include="cuStubs.cuh" />
     <ClInclude Include="Segmentation.h" />
-    <ClInclude Include="Stopwatch.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

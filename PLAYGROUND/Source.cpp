@@ -5,6 +5,7 @@
 #include <Windows.h>
 #include <vector>
 #include "common.h"
+#include "Stopwatch.h"
 using namespace std;
 #define OPERATION(OPERAND) int _minus(int a, int b){\
 	return a OPERAND b;\

@@ -102,6 +102,9 @@ public:
 #ifdef MSAA_SAMPLES
 		_BackBufferSurfaceDesc.SampleDesc.Count = MSAA_SAMPLES;
 		_BackBufferSurfaceDesc.SampleDesc.Quality = 0;
+		//UINT *result_qualities = new UINT[256];
+		//_Device->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, MSAA_SAMPLES, result_qualities);
+		
 #else
 		_BackBufferSurfaceDesc.SampleDesc.Count = 1;
 		_BackBufferSurfaceDesc.SampleDesc.Quality = 0;
@@ -125,7 +128,7 @@ public:
 		hr = factory->CreateSwapChain(_Device, &sd, &_SwapChain);
 		hr = _SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&_TexBackbuffer);
 		hr = _Device->CreateRenderTargetView(_TexBackbuffer, NULL, &_RtvBackbuffer);
-
+		
 		// Create depth stencil texture	
 		D3D11_TEXTURE2D_DESC descDepth;
 		ZeroMemory(&descDepth, sizeof(D3D11_TEXTURE2D_DESC));

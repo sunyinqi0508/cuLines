@@ -200,7 +200,7 @@ class Renderer
 
 				if (FAILED(Device->CreateBuffer(&bufDesc, &initData, &_VbViewportQuad))) return false;
 			}
-
+			
 			if (!_CbFadeToAlpha.Create(Device)) return false;
 			if (!_CbRenderer.Create(Device)) return false;
 

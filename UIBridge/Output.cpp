@@ -16,5 +16,8 @@ extern "C" {
 		pointer->n_streamlines = FileIO::n_streamlines;
 		pointer->sizes = FileIO::Streamline::sizes;
 		pointer->n_points = FileIO::n_points;
+		//TODO: assign alpha array here;
+		pointer->alpha = alpha;
+		pointer->colors = new int[FileIO::n_points];
 	}
 }

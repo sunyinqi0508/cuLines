@@ -1,7 +1,7 @@
-
+#include "../include/Parameters.h"
 #ifndef MSAA_SAMPLES
 // uncommend this line to globally disable multisampling
-#define MSAA_SAMPLES 2
+#define MSAA_SAMPLES 8
 #endif
 
 #ifndef _WIN32

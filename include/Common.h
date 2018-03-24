@@ -20,11 +20,13 @@
 
 struct Communicator {
 	const char* filename;
-	float **f_streamlines;
-	float *results;
-	void *AdditionalParas;
+	float **f_streamlines = 0;
+	float *results = 0;
+	int *colors = 0;
+	void *AdditionalParas = 0;
 	int n_streamlines;
-	int *sizes;
+	int *sizes = 0;
+	float *alpha = 0;
 	int n_points;
 };
 

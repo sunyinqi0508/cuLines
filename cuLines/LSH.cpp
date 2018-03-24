@@ -349,11 +349,13 @@ void arrangement(int n_buckets, int n_tuple, int* buckets) {
 
 }
 vector<HashTable> hashtables;
-
+float *alpha;
 int lsh_benchmark(const char* filename) {
 	LoadWaveFrontObject(filename);
 	//FileIO::normalize();
 	FileIO::toFStreamlines();
+	alpha = new float[n_points];
+	std::fill(alpha, alpha + n_points, 1.f);
 	return 0;
 	decomposeByCurvature(2*M_PI, 1000.f);
 	initializeSecondLevel();
