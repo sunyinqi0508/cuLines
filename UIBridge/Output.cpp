@@ -2,6 +2,7 @@
 #include "FileIO.h"
 #include "../cuLines/LSH.h"  
 #include <memory>
+#include <Windows.h>
 
 extern "C" {
 	void __declspec(dllexport) transfer(Communicator* pointer) {
@@ -23,4 +24,9 @@ extern "C" {
 		pointer->alpha = alpha;
 		pointer->colors = 0;// new int[FileIO::n_points];
 	}
+
+}
+
+int main() {
+	
 }

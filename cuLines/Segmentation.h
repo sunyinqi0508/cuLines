@@ -15,7 +15,7 @@ public:
 
 	operator const Vector3&();
 };
-
+//#pragma optimize("", off)
 class SegmentPointLookupTable {
     const Segment &seg_;
     Vector3 target_;
@@ -30,6 +30,7 @@ public:
 
     int nearest(const Vector3 &v) const;
 };
+//#pragma optimize("", on)
 
 extern void segGlobal(float penalty = 0);
 extern void decomposeByCurvature(float, float);

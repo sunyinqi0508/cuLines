@@ -18,15 +18,15 @@ public:
 	explicit Camera(const Vec3f& position, const Vec3f& lookAt, float aspectRatio, HWND hWnd) :
 		mPosition(position.x, position.y, position.z),
 		mLookAt(lookAt.x, lookAt.y, lookAt.z),
-		mUp(0, 1, 0),
+		mUp(0, 0.1, 0),
 		mAspectRatio(aspectRatio),
 		mMoveStep(20.0f),
 		mRotStep(0.001f),
 		mLastX(0),
 		mLastY(0),
 		mDamping(1.0f),
-		mNear(0.01f),
-		mFar(100),
+		mNear(0.0000001f),
+		mFar(10000000),
 		mPhi(0),
 		mTheta(0),
 		hWnd(hWnd)

@@ -89,31 +89,51 @@ namespace FileIO {
 		f_streamlines[0][curr](_x, _y, _z);
 	}
 
-	//template <bool T>
-	void normalize(float R, const bool _normalize) {
+	void normalize(float R, const bool _normalize, bool format) {
 
-		float max = INT_MIN, min = INT_MAX;
-		for (vector<Vector3>& line : streamlines)
-			for (Vector3& vertex : line)
-				for (int i = 0; i < 3; i++)
-					if (vertex[i] > max)
-						max = vertex[i];
-					else if (vertex[i] < min)
-						min = vertex[i];
+		Vector3 max = INT_MIN, min = INT_MAX;
+		if (format == Format::STREAMLINE_VECTOR)
+		{
+			for (vector<Vector3>& line : streamlines)
+				for (Vector3& vertex : line)
+					for (int i = 0; i < 3; i++)
+						if (vertex[i] > max[i])
+							max[i] = vertex[i];
+						else if (vertex[i] < min[i])
+							min[i] = vertex[i];
+		}
+		else
+			for (int i = 0; i < n_streamlines; i++)
+				for (int j = 0; j < Streamline::size(i); j++)
+					for (int k = 0; k < 3; k++)
+						if (f_streamlines[i][j][k] > max[k])
+							max[k] = f_streamlines[i][j][k];
+						else if (f_streamlines[i][j][k] < min[k])
+							min[k] = f_streamlines[i][j][k];
+		max -= min;
 
-		const float interval = (_normalize ? (max - min) : 1) * R;
+		float interval = max[0];
+		for (int i = 1; i < 3; i++)
+			if (interval < max[i])
+				interval = max[i];
 
-		for (vector<Vector3>&line : streamlines)
-			for (Vector3& vertex : line)
-				for (int i = 0; i < 3; i++)
-					vertex[i] = (vertex[i] - min) / interval;
-
+		interval = (_normalize ? interval : 1) * R;
+		min = _normalize ? min : Vector3(0.f);
+		if (format == Format::STREAMLINE_VECTOR)
+			for (vector<Vector3>&line : streamlines)
+				for (Vector3& vertex : line)
+					for (int i = 0; i < 3; i++)
+						vertex[i] = (vertex[i] - min) / interval;
+		else
+			for (int i = 0; i < n_streamlines; i++)
+				for (int j = 0; j < Streamline::size(i); j++)
+					f_streamlines[i][j] = (f_streamlines[i][j] - min) / interval;
 	}
-
-	void scaleByR(float R, const bool _normalize)
+	void scaleByR(float R, const bool _normalize, bool format)
 	{
-		normalize(R, _normalize);
+		normalize(R, _normalize, format);
 	}
+
 
 	void LoadWaveFrontObject_NG(const char* file) {
 		FILE* fp;
@@ -178,7 +198,7 @@ namespace FileIO {
 
 		fclose(fp);
 	}
-	void LoadWaveFrontObject(const char* file) {
+	void LoadWaveFrontObject(const char* file, int Max_N) {
 
 		streamlines.clear();
 		streamlines.resize(0);
@@ -204,7 +224,8 @@ namespace FileIO {
 				else if (*buffer == 'g') {
 					newline();
 					streamlines.back().shrink_to_fit();
-
+					if (streamlines.size() > Max_N)
+						goto end;
 					skip = true;
 				}
 				else if (*buffer++ == 'v' && *buffer++ == ' ') {
@@ -219,6 +240,7 @@ namespace FileIO {
 				break;
 			buffer++;
 		}
+		end:
 		streamlines.shrink_to_fit();
 		streamlines.pop_back();
 		availiblity_flag |= 1 << Format::STREAMLINE_VECTOR;
@@ -235,10 +257,7 @@ namespace FileIO {
 			n_streamlines = streamlines.size();
 			n_points = 0;
 
-
 			f_streamlines = new Vector3*[n_streamlines + 1];
-
-
 			for (vector<Vector3> line : streamlines)
 				n_points += line.size();
 
@@ -248,7 +267,6 @@ namespace FileIO {
 
 				f_streamlines[ptr_fs] = f_streamlines[ptr_fs - 1] + line.size();
 
-
 				int j = 0;
 				for (Vector3 vertex : line) {
 					f_streamlines[ptr_fs - 1][j++] = vertex;
@@ -256,9 +274,7 @@ namespace FileIO {
 				ptr_fs++;
 			}
 			Streamline::reinit();
-
 		}
-
 	}
 
 	void OutputBSL(const char* destination) {
@@ -375,7 +391,7 @@ namespace FileIO {
 	size_t inline Streamline::size(size_t sl_pos)
 	{
 		//if (sizes[sl_pos] < 0)
-			//_calc_size(sl_pos); 
+		//_calc_size(sl_pos); 
 		/*Earerly compute sizes instead of lazy strategy*/
 		return sizes[sl_pos];
 	}
@@ -420,7 +436,7 @@ namespace FileIO {
 
 		//sizes[n_streamlines - 1] = n_points - (f_streamlines[n_streamlines - 1] - f_streamlines[0]);
 		sizes[n_streamlines] = n_points;
-		
+
 		availiblity_flag |= AvailFlags(Format::STREAMLINE_ARRAY);
 	}
 }

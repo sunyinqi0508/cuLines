@@ -13,10 +13,12 @@ namespace FileIO {
 	extern int64_t n_points;
 	extern int64_t n_streamlines;
 
-	enum Format { STREAMLINE_ARRAY, STREAMLINE_VECTOR };
+	const enum  Format { STREAMLINE_ARRAY, STREAMLINE_VECTOR };
 
-	void LoadWaveFrontObject(const char* file);
-	void normalize(float R = 1, const bool _normalize = true);
+	void LoadWaveFrontObject(const char* file, int Max_N = INT_MAX);
+
+	void normalize(float R = 1, const bool _normalize = true, bool format = Format::STREAMLINE_VECTOR);
+
 	void OutputBSL(const char* destination);
 	void OutputOBJ(const char* destination, const float* vt, Format source);
 	void ReadBSL(const char* filename);
@@ -26,12 +28,14 @@ namespace FileIO {
 	*	 		 false => scale on original coords. (default)
 	*			
 	*/
-	void scaleByR(float R, const bool _normalize = false);
+	void scaleByR(float R, const bool _normalize = false, bool format = Format::STREAMLINE_ARRAY);
 
 	class Streamline {
 	private:
 		static size_t _max_size;
+
 	public:
+
 		static size_t inline size(size_t sl_pos);
 		static size_t max_size();
 		static void _calc_size(size_t sl_pos);
@@ -40,7 +44,6 @@ namespace FileIO {
 		static int* sizes;
 		static int* offsets;
 		static int* pt_to_line;
-
 	};
 
 }

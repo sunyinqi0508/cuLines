@@ -194,8 +194,9 @@ int SegmentPointLookupTable::nearest(const Vector3 &v) const {
     auto p = (v - seg_.start_point).project(target_);
     if (p - min_ < EPSILON)
         return slots_[0];
-    if (max_ - p < EPSILON)
+    if (max_ - p < width_)
         return slots_[n_slots_ - 1];
+
     return slots_[static_cast<int>(std::floor((p - min_) / width_))];
 }
 

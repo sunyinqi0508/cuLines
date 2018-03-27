@@ -3,7 +3,8 @@
 
 #if  defined(__linux__) || defined(_WIN32) || defined(__unix__) || defined(_POSIX_VERSION) ||defined (__APPLE__)
 // determine if it's in host code or shader
-constexpr int funcpool_size = 32, L = 5, K = 4, TABLESIZE = 100;
+constexpr int funcpool_size = 32, L = 10, K = 18, TABLESIZE = 100;
+constexpr int R1 = 1;
 constexpr int64_t Prime = (1ll << 32) - 5;
 constexpr int maxNN = 64, similarity_window= 8;
 #endif

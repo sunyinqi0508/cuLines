@@ -98,17 +98,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Vec2i resolution(700, 700);
 	float q, r, lambda, stripWidth;
 	int totalNumCPs, smoothingIterations;
+	//datasetIndex = 1;
 	switch (datasetIndex)
 	{
 	default:
 	case 0:
 		path = std::string("data/tornado.obj");
-		eye = Vec3f(14, 14, 14);
+		//eye = Vec3f(30, 30, 30);
+		//lookAt = Vec3f(10, 10, 10);
+		//q = 100;
+		//r = 500;
+		//lambda = 1.5;
+		//stripWidth = 0.07f;
+		eye = Vec3f(11, 21, -25);
 		lookAt = Vec3f(10, 10, 10);
-		q = 100;
+		q = 60;
 		r = 500;
 		lambda = 1;
 		stripWidth = 0.05f;
+
 		totalNumCPs = 10000;
 		smoothingIterations = 10;
 		break;

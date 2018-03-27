@@ -265,7 +265,6 @@ private:
 		_Colors.resize(n_points);
 
 		if (alpha)
-
 			_Importance.assign(alpha, alpha + n_points);
 		else
 			std::fill(_Importance.begin(), _Importance.end(), 0.2);
@@ -282,7 +281,7 @@ private:
 
 #else 
 		std::ifstream myfile(path);
-		
+
 		if (myfile.is_open())
 		{
 			std::string line;
@@ -338,7 +337,8 @@ private:
 			}
 			myfile.close();
 		}
-
+		_Colors.resize(_Importance.size());
+		std::fill(_Colors.begin(), _Colors.end(), 0xffa30000);
 #endif
 
 		//memcpy
