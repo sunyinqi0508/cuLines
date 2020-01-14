@@ -2,6 +2,7 @@
 #define VIEWER_H
 
 #include <QOpenGLWidget>
+
 #include <qcoreapplication.h>
 #include <sstream>
 #include <math.h>
@@ -12,18 +13,23 @@
 #include <qtimer.h>
 #include <time.h>
 
-#include <thrust/host_vector.h>
-#include <thrust/device_vector.h>
 #include <stdarg.h>
 #include <cmath>
 #include <iostream>
 #include <string>
+
+
 #include "glExtensions.h"
 #include <fstream>
-#include <ILines/Vector.h>
-#include <ILines/ILRender.h>
-#include <ILines/ILLightingModel.h>
+
+#include "ILines/Vector.h"
+
+#include "ILines/ILRender.h"
+
+//#include "ILines/ILLightingModel.h"
+
 #include "FPSCounter.h"
+
 #include <map>
 #include <windows.h>
 #include <stdio.h>      /* printf, scanf, puts, NULL */
@@ -201,7 +207,7 @@ public:
 	float color_g = 0;
 	float color_b = 0;
 
-	void readGermandata(vector<Line> &streamlines0, string data);// , int inputlines);
+	//void readGermandata(vector<Line> &streamlines0, string data);// , int inputlines);
 	int readBenddata(vector<Line> &streamlines0, const char*data);
 	int readGuoningdata(vector<Line> &streamlines0, const char*data);
 	void setLight();
@@ -290,5 +296,6 @@ private:
 	bool rec = false, res = false;
 	void zoomTheObject(GLfloat x0, GLfloat y0, GLfloat x1, GLfloat y1);
 };
+
 
 #endif // VIEWER_H

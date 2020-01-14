@@ -54,11 +54,11 @@
     <ProjectGuid>{77A5A6A4-8332-3852-9737-532C951365A7}</ProjectGuid>
     <RootNamespace>FlowVisualization</RootNamespace>
     <Keyword>Qt4VSv1.0</Keyword>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <PlatformToolSet>v120</PlatformToolSet>
+    <PlatformToolSet>v141</PlatformToolSet>
     <OutputDirectory>release\</OutputDirectory>
     <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
     <CharacterSet>NotSet</CharacterSet>
@@ -67,7 +67,7 @@
     <PrimaryOutput>FlowVisualization</PrimaryOutput>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debuggable|Win32'" Label="Configuration">
-    <PlatformToolSet>v120</PlatformToolSet>
+    <PlatformToolSet>v141</PlatformToolSet>
     <OutputDirectory>release\</OutputDirectory>
     <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
     <CharacterSet>NotSet</CharacterSet>
@@ -76,7 +76,7 @@
     <PrimaryOutput>FlowVisualization</PrimaryOutput>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release_to_debug|Win32'" Label="Configuration">
-    <PlatformToolSet>v120</PlatformToolSet>
+    <PlatformToolSet>v141</PlatformToolSet>
     <OutputDirectory>release\</OutputDirectory>
     <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
     <CharacterSet>NotSet</CharacterSet>
@@ -85,7 +85,7 @@
     <PrimaryOutput>FlowVisualization</PrimaryOutput>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Releasing|Win32'" Label="Configuration">
-    <PlatformToolSet>v120</PlatformToolSet>
+    <PlatformToolSet>v141</PlatformToolSet>
     <OutputDirectory>release\</OutputDirectory>
     <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
     <CharacterSet>NotSet</CharacterSet>
@@ -101,10 +101,9 @@
     <ConfigurationType>Application</ConfigurationType>
     <IntermediateDirectory>release\</IntermediateDirectory>
     <PrimaryOutput>FlowVisualization</PrimaryOutput>
-    <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debuggable|x64'" Label="Configuration">
-    <PlatformToolSet>v120</PlatformToolSet>
+    <PlatformToolSet>v141</PlatformToolSet>
     <OutputDirectory>release\</OutputDirectory>
     <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
     <CharacterSet>NotSet</CharacterSet>
@@ -122,7 +121,7 @@
     <PrimaryOutput>FlowVisualization</PrimaryOutput>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Releasing|x64'" Label="Configuration">
-    <PlatformToolSet>v120</PlatformToolSet>
+    <PlatformToolSet>v141</PlatformToolSet>
     <OutputDirectory>release\</OutputDirectory>
     <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
     <CharacterSet>NotSet</CharacterSet>
@@ -131,7 +130,7 @@
     <PrimaryOutput>FlowVisualization</PrimaryOutput>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <PlatformToolSet>v120</PlatformToolSet>
+    <PlatformToolSet>v141</PlatformToolSet>
     <OutputDirectory>debug\</OutputDirectory>
     <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
     <CharacterSet>NotSet</CharacterSet>
@@ -140,7 +139,7 @@
     <PrimaryOutput>FlowVisualization</PrimaryOutput>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <PlatformToolSet>v140</PlatformToolSet>
+    <PlatformToolSet>v141</PlatformToolSet>
     <OutputDirectory>debug\</OutputDirectory>
     <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
     <CharacterSet>NotSet</CharacterSet>
@@ -149,14 +148,14 @@
     <PrimaryOutput>FlowVisualization</PrimaryOutput>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug_from_release|x64'">
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug_from_release|Win32'">
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 9.1.props" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 9.2.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
@@ -510,8 +509,11 @@
       </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)UIBridge.dll $(OutDir)</Command>
+      <Command>copy "$(SolutionDir)UIBridge.dll" "$(OutDir)" /y</Command>
     </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>copy "$(SolutionDir)UIBridge.dll" "$(OutDir)" /y</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debuggable|x64'">
     <ClCompile>
@@ -760,7 +762,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\sunyi\source\repos\FlowVisualization2.6_b;\include;C:\Users\sunyi\source\repos\FlowVisualization2.6_b\debug;C:\qt\qt5.4.2\5.4\msvc2013_opengl\mkspecs\win32-msvc2013;C:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName);\include\QtCore;\include\QtGui;\include\QtOpenGL;\include\QtWidgets;\include\QtANGLE;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtOpenGL;$(QTDIR)\include\QtWidgets;.\GeneratedFiles;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../include;\include;C:\Users\sunyi\source\repos\FlowVisualization2.6_b\debug;C:\qt\qt5.4.2\5.4\msvc2013_opengl\mkspecs\win32-msvc2013;C:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName);\include\QtCore;\include\QtGui;\include\QtOpenGL;\include\QtWidgets;\include\QtANGLE;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtOpenGL;$(QTDIR)\include\QtWidgets;.\GeneratedFiles;$(QTDir)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm200 -w34100 -w34189 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -790,7 +792,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>freeglut.lib;glut.lib;cudart.lib;gdi32.lib;user32.lib;shell32.lib;Qt5Core.lib;Qt5Gui.lib;Qt5OpenGL.lib;Qt5Widgets.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5OpenGLd.lib;opengl32.lib;glu32.lib;Qt5Widgetsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:/Qt/Qt5.5.0/5.5/msvc2013_64/lib;/lib;C:/Users/sunyi/source/repos/FlowVisualization2.6_b/$(CudaToolkitLibDir);C:/Users/sunyi/source/repos/FlowVisualization2.6_b/$(ProjectDir)/lib/x64;C:/Users/sunyi/source/repos/FlowVisualization2.6_b/$(CudaToolkitLibDir);C:/Users/sunyi/source/repos/FlowVisualization2.6_b/$(ProjectDir)/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:/Qt/Qt5.5.0/5.5/msvc2013_64/lib;/lib;$(CudaToolkitLibDir);$(ProjectDir)/lib/x64;$(ProjectDir)/lib/;$(QTDIR)/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -822,6 +824,9 @@
     <CudaLink>
       <Optimization>Od</Optimization>
     </CudaLink>
+    <CustomBuildStep>
+      <Command>copy "$(SolutionDir)UIBridge.dll" "$(OutDir)" /y</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_from_release|Win32'">
     <Link />
@@ -933,7 +938,7 @@ endlocal
 if errorlevel 1 goto VCEnd
 if errorlevel 1 goto VCEnd
 endlocal
-"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -D_WINDOWS -D_DEBUG -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_ALLOW_RTCc_IN_STL -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b" "-I\include" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\debug" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\mkspecs\win32-msvc2013" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName)\." "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles"</Command>
+"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -D_WINDOWS -D_DEBUG -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_ALLOW_RTCc_IN_STL -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB  "-I.\..\include" "-I\include" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\debug" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\mkspecs\win32-msvc2013" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName)\." "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles" "-I$(QTDir)\include"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing %(Identity)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing %(Identity)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\moc_%(Filename).cpp</Outputs>
@@ -973,7 +978,7 @@ endlocal
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtWidgets" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtGui" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtCore" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\debug" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\mkspecs\win32-msvc2013" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName)\." "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing %(Identity)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -D_WINDOWS -D_DEBUG -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_ALLOW_RTCc_IN_STL -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b" "-I\include" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\debug" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\mkspecs\win32-msvc2013" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName)\." "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -D_WINDOWS -D_DEBUG -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_ALLOW_RTCc_IN_STL -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB  "-I.\..\include" "-I\include" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\debug" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\mkspecs\win32-msvc2013" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName)\." "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles" "-I$(QTDir)\include"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing %(Identity)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debuggable|Win32'">Moc%27ing %(Identity)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='release_to_debug|Win32'">Moc%27ing %(Identity)...</Message>
@@ -1029,7 +1034,7 @@ endlocal
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtWidgets" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtGui" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtCore" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\debug" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\mkspecs\win32-msvc2013" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName)\." "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing %(Identity)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -D_WINDOWS -D_DEBUG -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_ALLOW_RTCc_IN_STL -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b" "-I\include" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\debug" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\mkspecs\win32-msvc2013" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName)\." "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -D_WINDOWS -D_DEBUG -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_ALLOW_RTCc_IN_STL -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB  "-I.\..\include" "-I\include" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\debug" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\mkspecs\win32-msvc2013" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName)\." "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles" "-I$(QTDir)\include"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing %(Identity)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtWidgets" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtGui" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtCore" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\release" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\mkspecs\win32-msvc2013" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName)\." "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles"</Command>
@@ -1077,7 +1082,74 @@ endlocal
     <ClInclude Include="ILines\ILTexture.h" />
     <ClInclude Include="ILines\ILUtilities.h" />
     <ClInclude Include="ILines\ShaderProgram.h" />
-    <ClInclude Include="ILines\Vector.h" />
+    <CustomBuild Include="ILines\Vector.h">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debuggable|x64'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debuggable|x64'">
+      </Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debuggable|x64'">
+      </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debuggable|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debuggable|Win32'">
+      </Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debuggable|Win32'">
+      </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug_from_release|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug_from_release|Win32'">
+      </Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug_from_release|Win32'">
+      </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug_from_release|x64'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug_from_release|x64'">
+      </Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug_from_release|x64'">
+      </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='release_to_debug|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='release_to_debug|Win32'">
+      </Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='release_to_debug|Win32'">
+      </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Releasing|x64'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Releasing|x64'">
+      </Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Releasing|x64'">
+      </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Releasing|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Releasing|Win32'">
+      </Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Releasing|Win32'">
+      </Command>
+    </CustomBuild>
     <ClInclude Include="Integrator.h" />
     <CustomBuild Include="LightParameters.h">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debuggable|x64'">Moc%27ing %(Identity)...</Message>
@@ -1091,7 +1163,7 @@ endlocal
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtWidgets" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtGui" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtCore" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\debug" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\mkspecs\win32-msvc2013" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName)\." "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing %(Identity)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -D_WINDOWS -D_DEBUG -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_ALLOW_RTCc_IN_STL -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b" "-I\include" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\debug" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\mkspecs\win32-msvc2013" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName)\." "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -D_WINDOWS -D_DEBUG -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_ALLOW_RTCc_IN_STL -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB  "-I.\..\include" "-I\include" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\debug" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\mkspecs\win32-msvc2013" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName)\." "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles" "-I$(QTDir)\include"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing %(Identity)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtWidgets" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtGui" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtCore" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\release" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\mkspecs\win32-msvc2013" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName)\." "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles"</Command>
@@ -1129,7 +1201,7 @@ endlocal
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Releasing|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='release_to_debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
-    <ClInclude Include="SimTester.h" />
+    <CudaCompile Include="SimTester.h" />
     <ClInclude Include="streamline.h" />
     <ClInclude Include="Vector2.h" />
     <ClInclude Include="Vector3.h" />
@@ -1139,7 +1211,7 @@ endlocal
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\moc_%(Filename).cpp</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtWidgets" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtGui" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtCore" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\debug" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\mkspecs\win32-msvc2013" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName)\." "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -D_WINDOWS -D_DEBUG -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_ALLOW_RTCc_IN_STL -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b" "-I\include" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\debug" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\mkspecs\win32-msvc2013" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName)\." "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -D_WINDOWS -D_DEBUG -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_ALLOW_RTCc_IN_STL -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-I.\..\include" "-I\include" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\debug" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\mkspecs\win32-msvc2013" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName)\." "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles" "-I$(QTDir)\include"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing %(Identity)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debuggable|Win32'">Moc%27ing %(Identity)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='release_to_debug|Win32'">Moc%27ing %(Identity)...</Message>
@@ -1160,7 +1232,7 @@ endlocal
       <Command Condition="'$(Configuration)|$(Platform)'=='Debuggable|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtWidgets" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtGui" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtCore" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\release" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\mkspecs\win32-msvc2013" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName)\." "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='release_to_debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtWidgets" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtGui" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtCore" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\release" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\mkspecs\win32-msvc2013" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName)\." "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Releasing|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtWidgets" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtGui" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\include\QtCore" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\release" "-IC:\qt\qt5.4.2\5.4\msvc2013_opengl\mkspecs\win32-msvc2013" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName)\." "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -DMANUALDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB  "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles" "-I$(QTDir)\include" "-IC:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" "-I." "-I$(SolutionDir)include"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -DMANUALDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles" "-I$(QTDir)\include" "-IC:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" "-I." "-I$(SolutionDir)include"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debuggable|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -DMANUALDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_NO_DEBUG -DDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b" "-IC:\Qt\Qt5.8.0\5.8\msvc2015_64\include" "-IC:\Qt\Qt5.8.0\5.8\msvc2015_64\include\QtWidgets" "-IC:\Qt\Qt5.8.0\5.8\msvc2015_64\include\QtGui" "-IC:\Qt\Qt5.8.0\5.8\msvc2015_64\include\QtCore" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\release" "-IC:\Qt\Qt5.8.0\5.8\msvc2015_64\mkspecs\win32-msvc2013" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName)\." "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='release_to_debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -DMANUALDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_NO_DEBUG -DDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b" "-IC:\Qt\Qt5.8.0\5.8\msvc2015_64\include" "-IC:\Qt\Qt5.8.0\5.8\msvc2015_64\include\QtWidgets" "-IC:\Qt\Qt5.8.0\5.8\msvc2015_64\include\QtGui" "-IC:\Qt\Qt5.8.0\5.8\msvc2015_64\include\QtCore" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\release" "-IC:\Qt\Qt5.8.0\5.8\msvc2015_64\mkspecs\win32-msvc2013" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName)\." "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Releasing|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -DMANUALDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b" "-IC:\Qt\Qt5.5.0\5.5\msvc2013_64\include" "-IC:\Qt\Qt5.5.0\5.5\msvc2013_64\include\QtWidgets" "-IC:\Qt\Qt5.5.0\5.5\msvc2013_64\include\QtGui" "-IC:\Qt\Qt5.5.0\5.5\msvc2013_64\include\QtCore" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\release" "-IC:\Qt\Qt5.5.0\5.5\msvc2013_64\mkspecs\win32-msvc2013" "-IC:\Users\sunyi\source\repos\FlowVisualization2.6_b\GeneratedFiles\$(ConfigurationName)\." "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles"</Command>
@@ -1170,17 +1242,17 @@ endlocal
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug_from_release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\moc_%(Filename).cpp"  -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-I\include\QtCore" "-I\include\QtGui" "-I\include\QtANGLE" "-I\include\QtOpenGL" "-I\include\QtWidgets" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I.\GeneratedFiles"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug_from_release|x64'">Moc%27ing %(Identity)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug_from_release|x64'">.\GeneratedFiles\moc_%(Filename).cpp</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debuggable|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debuggable|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_from_release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_from_release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='release_to_debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Releasing|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Releasing|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debuggable|x64'">$(QTDIR)\bin\moc.exe;%(FullPath);$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debuggable|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath);$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_from_release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath);$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_from_release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath);$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath);$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath);$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath);$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath);$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='release_to_debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath);$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Releasing|x64'">$(QTDIR)\bin\moc.exe;%(FullPath);$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Releasing|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath);$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='release_to_debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
   </ItemGroup>
@@ -1189,7 +1261,7 @@ endlocal
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 9.1.targets" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 9.2.targets" />
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>

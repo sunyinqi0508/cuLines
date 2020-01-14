@@ -1,4 +1,4 @@
-#include "cuStubs.cuh"
+#include "cuProxy.cuh"
 #include "LSH.h"
 #include "Vector.h"
 #include <cuda_runtime.h>
@@ -11,5 +11,4 @@ void cudaMemPrep() {
 	HashTable;
 	GPU_HashTable;
 
-	
 }

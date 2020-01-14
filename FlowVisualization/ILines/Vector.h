@@ -1,6 +1,7 @@
 /* $Id: Vector.h,v 1.5 2005/10/17 10:12:09 ovidiom Exp $ */
 
 /* forward declarations */
+
 namespace ILines { struct Vector3f; }
 
 #ifndef _VECTOR3F_H_

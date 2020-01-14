@@ -32,7 +32,7 @@ namespace ILines
 		"# ******* parameters *********                         \n"
 		"                                                       \n"
 		"PARAM spec_exp = state.light[0].attenuation;           \n"
-		"PARAM const    = { 0, 0.5, 1, 2 };                     \n"
+		"PARAM const    = { 0.1, 0.5, 1, 2 };                     \n"
 		"                                                       \n"
 		"# ******** temporaries *********                       \n"
 		"                                                       \n"
@@ -63,12 +63,20 @@ namespace ILines
 		"                                                       \n"
 		"# bin = tangent * view, bin = bin / |bin|              \n"
 		"XPD bin, tangent, view;                                \n"
-		"DP3 bin.w, bin, bin;                                   \n"
-		"RSQ bin.w, bin.w;                                      \n"
-		"MUL bin.xyz, bin, bin.w;                               \n"
+		//"DP3 bin.w, bin, bin;                                   \n"
+		//"RSQ bin.w, bin.w;                                      \n"
+		//"MUL bin.xyz, bin, bin.w;                               \n"
+		"                                                       \n"
+		//"MOV bin.x, const.z;                                    \n"
+		//"MOV bin.y, const.z;                                    \n"
+		//"MOV bin.z, const.z;                                    \n"
 		"                                                       \n"
 		"# nrm = bin * tan                                      \n"
 		"XPD nrm, bin, tan;                                     \n"
+		"DP3 nrm.w, nrm, nrm;                                   \n"
+		"RSQ nrm.w, nrm.w;                                      \n"
+		"MUL nrm.xyz, nrm, nrm.w;                               \n"
+
 		"                                                       \n"
 		"# compute normalized light direction                   \n"
 		"DP3 light.w, light_v, light_v;                         \n"
@@ -90,6 +98,8 @@ namespace ILines
 		"# lu_tc.zw = half . { nrm, tan }                       \n"
 		"DP3 lu_tc.z, half, nrm;                                \n"
 		"DP3 lu_tc.w, half, tan;                                \n"
+		"MOV sqr_f.x, lu_tc.z;		                            \n"
+
 		"                                                       \n"
 		"# 1/sqrt(1- {light, half} . tan ^ 2)                   \n"
 		"MAD sqr_f.zw, lu_tc.xzyw, -lu_tc.xzyw, const.z;        \n"
@@ -98,7 +108,7 @@ namespace ILines
 		"MUL lu_tc.zw, lu_tc.yzxz, sqr_f;                       \n"
 		"                                                       \n"
 		"# make tex coords lie in [0,1]                         \n"
-		"MAD lu_tc, lu_tc, const.y, const.y;                    \n"
+		"MAD lu_tc.yzw, lu_tc, const.y, const.y;                \n"
 		"                                                       \n"
 		"# read diffuse factor from tex                         \n"
 		"TEX diff.x, lu_tc.zyxw, texture[0], 2D;                \n"
@@ -106,22 +116,39 @@ namespace ILines
 		"# read spec factor from tex                            \n"
 		"TEX spec.x, lu_tc.zwxy, texture[1], 2D;                \n"
 		"                                                       \n"
-		"# (1 - half . tan^2)^(exp/2)                           \n"
-		"POW lu_tc.w, sqr_f.w, -spec_exp.w;                     \n"
+		"# (1 - (half . tan)^2)^(exp/2)                           \n"
+/*			"RCP lu_tc.w, sqr_f.w; \n"//1/sqrt(1-cos^2(theta'))
+			"SUB lu_tc.w, lu_tc.w, sqr_f.x; \n"
+			"ABS lu_tc.w, lu_tc.w;\n"
+//			"MUL lu_tc.w, lu_tc.w, const.w;\n"
+			"MOV result.color.x, lu_tc.w;\n"	
+			"MOV result.color.y, lu_tc.w;\n"	
+
+			"MOV result.color.z, lu_tc.w;\n"
+			"MOV result.color.w, const.z;\n"
+			"END \n"
+			;
+
+}
+/**/
+		"POW lu_tc.w, sqr_f.x, spec_exp.w;                     \n"
 		"                                                       \n"
-		"MUL_SAT spec.w, spec.x, lu_tc;                         \n"
+		"MUL_SAT spec.w, spec.x, lu_tc.w;                         \n"
 		"                                                       \n"
 		"# combine                                              \n"
-#ifdef LIGHTING
+		"MAD_SAT diff.x, diff.x, lu_tc.x,const.x;\n"
+//#ifdef LIGHTING
 		"MAD result.color.xyz, diff.x, fragment.color, spec.w;  \n"
-#else
-		"MOV result.color.x, fragment.color.x;					\n"
-		"MOV result.color.y, fragment.color;					\n"
-		"MOV result.color.z, fragment.color;					\n"
-#endif
+			
+//#else
+//		"MOV result.color.x, fragment.color.x;					\n"
+//		"MOV result.color.y, fragment.color;					\n"
+//		"MOV result.color.z, fragment.color;					\n"
+//#endif
 		"# keep the alpha value of the fragment                 \n"
 		"MOV result.color.w, fragment.color;                    \n"
 		"                                                       \n"
 		"END                                                    \n";
 }
 
+//*/

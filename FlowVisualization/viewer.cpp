@@ -133,25 +133,27 @@ void Viewer::resizeGL(int width, int height)
 }
 
 float getLineWidth(int line_num){
-	return .15;
-	if (line_num > 0 && line_num <= 100){
-		return 2.5;
+	//return 15;
+	if (line_num > 0 && line_num <= 50) {
+		return 3.0;
 	}
+	else if (line_num <= 100)
+		return 2.6;
 	else if (line_num > 100 && line_num <= 200){
-		return 2;
+		return 2.4;
 	}
 	else if (line_num > 200 && line_num <= 400){
-		return 1.5;
+		return 2.2;
 	}
 	else if (line_num > 400 && line_num <= 800){
-		return 1;
+		return 2.f;
 	}
 	else if (line_num > 800 && line_num <= 1600){
-		return 0.5;
+		return 1.5;
 	}
 	else
 	{
-		return 0.1;
+		return 1.f;
 	}
 }
 
@@ -1311,6 +1313,31 @@ DWORD WINAPI consoleCtrl(LPVOID *param) {
 }
 void  Viewer::makeData()
 {
+	string datapath = "d:/flow_data/bsldatanormalized/";
+	FILE *stream = 0;
+	char _buffer[32767];
+	while (!stream) {
+		string dataset = "aneurysm.bsl";
+		std::cin.getline(_buffer, 32766);
+		if (strlen(_buffer) > 0 && strlen(_buffer) < 32766)
+			dataset = _buffer;
+		if (dataset == "")
+		{
+			dataset = "aneurysm.bsl";
+		}
+		datapath += dataset;
+		stream = fopen(datapath.c_str(), "rb");
+		if (!stream) {
+			datapath += ".bsl";
+			stream = fopen(datapath.c_str(), "rb");
+			if (stream)
+				break;
+		}
+		else break;
+		datapath = "d:/flow_data/bsldatanormalized/";
+	}
+	fclose(stream);
+
 
 	HINSTANCE similarity_dll = LoadLibrary(L"UIBridge.dll");
 
@@ -1322,11 +1349,11 @@ void  Viewer::makeData()
 	Communicator *comm = new Communicator();
 	/* Setting up paras*/
 	
-	comm->filename = "d:/flow_data/tornado.obj";
+	comm->filename = datapath.c_str();// "d:/flow_data/2.obj";
 
 	transfer(comm);
 	printf("Transferred pointer: %x\n", comm->f_streamlines);
-	float **f_streamlines = comm->f_streamlines;
+	float **f_streamlines = comm ->f_streamlines;
 	int *i_colors = comm->colors;
 	float *alpha = comm->alpha;
 	//N = ;
@@ -1371,7 +1398,7 @@ void  Viewer::makeData()
 	int N = 0;
 	
 	
-	string datapath = "d:/flow_data/";
+	
 	goto skip;
 
 	//readfromBin(N);
@@ -1385,8 +1412,8 @@ void  Viewer::makeData()
 	streamlines0[N].path.resize(num);
 #endif
 
-	FILE *stream = 0;
-	char _buffer[32767];
+//	FILE *stream = 0;
+//	char _buffer[32767];
 	while (!stream) {
 		string dataset = "aneurysm.obj";
 		std::cin.getline(_buffer, 32766);
@@ -1636,11 +1663,15 @@ skip:
 			colors[i * 4 + 2] = ((i_colors[i] >> 8) & 0xff) / 255.f;
 		}
 		else {
+			colors[i * 4 + 0] = (0xff) / 255.f;
+			colors[i * 4 + 1] = (0xa9) / 255.f;
+			colors[i * 4 + 2] = (0x00) / 255.f;
+			/*
 			colors[i * 4 + 0] = (0x39) / 255.f;
 			colors[i * 4 + 1] = (0xb9) / 255.f;
-			colors[i * 4 + 2] = (0xf9) / 255.f;
+			colors[i * 4 + 2] = (0xf9) / 255.f;*/
 		}
-		if (alpha)
+		if (0)
 			colors[i * 4 + 3] = alpha[i];
 		else 
 			colors[i * 4 + 3] = 1.f;
@@ -1670,7 +1701,7 @@ void Viewer::makeConfigFile()
 	sceneCenter.y = (max_y + min_y) / 2;
 	sceneCenter.z = (max_z + min_z) / 2;
 
-	emit sendPosZSlider(cameraPosition.z);
+//	emit sendPosZSlider(cameraPosition.z);
 
 	cameraUp.x = 0;
 	cameraUp.y = 1;
@@ -1753,7 +1784,7 @@ void Viewer::initGLExtensions()
 }
 void Viewer::initGL()
 {
-	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glEnable(GL_DEPTH_TEST);
 
 	initGLExtensions();
@@ -1777,7 +1808,7 @@ void Viewer::cleanup()
 {
 	ILRender::deleteIdentifier(ilID_solid_lines);
 	ILRender::deleteIdentifier(ilID_deleted_lines);
-
+	 
 	delete[] vertices;
 	delete[] colors;
 }
@@ -2098,10 +2129,10 @@ void Viewer::display()
 	glVertex3f(lightPosition[0], lightPosition[1], lightPosition[2]);
 	glEnd();
 	glPointSize(1);
-	glBegin(GL_LINES);
-	glVertex3f(lightPosition[0], lightPosition[1], lightPosition[2]);
-	glVertex3f(sceneCenter.x + translateX, sceneCenter.y + translateY, sceneCenter.z + translateZ);
-	glEnd();
+	//glBegin(GL_LINES);
+	//glVertex3f(lightPosition[0], lightPosition[1], lightPosition[2]);
+	//glVertex3f(sceneCenter.x + translateX, sceneCenter.y + translateY, sceneCenter.z + translateZ);
+	//glEnd();
 	
 	glEnable(GL_LIGHTING); //在后面的渲染中使用光照
 	//set lighting

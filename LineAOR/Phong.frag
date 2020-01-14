@@ -1,0 +1,244 @@
+#version 460
+layout (location = 0) in vec3 o_tangent;
+layout (location = 1) in vec3 o_pos;
+layout (location = 2) in float o_alpha;
+layout (location = 3) in vec3 o_color;
+uniform mat4 mv_matrix; 
+uniform vec3 lightpos;
+uniform vec4 lightcolor;
+uniform vec4 linecolor;
+uniform sampler2D Depth;
+uniform sampler2D diffuse;
+uniform sampler2D specular;
+
+uniform int shader_type;
+uniform vec3 cameraposition;
+uniform float line_width;
+uniform float z_filter;
+uniform vec2 window_size;
+uniform int enable_AO;
+uniform int is_rendering_background;
+
+layout(location=0) out vec4 col;
+
+vec3 lightDir;
+vec3 N;
+vec3 view;
+float _diffuse=0.6f;
+float _specular=.68f;
+float _ambient=.3f;
+float _exp = 32;
+float ao_shadowing_radius = .15f;
+float r0=ao_shadowing_radius*line_width;
+int sr=4;
+int sh=32;
+float PIE_MY=3.1415927f; 
+const float lightPower = 2500.0;
+
+
+
+//uniform sampler2D depth;
+
+
+vec3 illighting(){
+    
+    vec3 normal = normalize(N);
+    vec3 _tan = normalize(cross(view, normal));
+    vec3 bin = normalize(cross(_tan, view));
+    
+    //vec3 normal = normalize(cross(view, tangent));
+    
+    vec3 light = normalize(mv_matrix*vec4(lightpos,1.f)).xyz;
+    
+    vec4 lu_tc;
+    lu_tc.x = dot(light, normal);
+    lu_tc.y = dot(light, _tan);
+    
+    vec3 _half;
+    _half = normalize(view) + light;
+    _half = normalize(_half);
+    
+    lu_tc.z = dot(_half, normal);
+    lu_tc.w = dot(_half, _tan);
+    
+    float half_dot_nrm = lu_tc.z;
+    
+    vec4 sqr_f;
+    sqr_f.zw = vec2(1,1)-lu_tc.yw*lu_tc.yw;
+    sqr_f.z = 1.f/sqrt(sqr_f.z);
+    sqr_f.w = 1.f/sqrt(sqr_f.w);
+    lu_tc.zw = lu_tc.xz *sqr_f.zw;
+    
+    lu_tc.yzw = lu_tc.yzw*0.5f + 0.5f;
+    
+    float diff = texture(diffuse, lu_tc.zy).x;
+    float spec = texture(specular, lu_tc.zw).x;
+    
+    vec3 final_light = vec3(clamp(spec * pow(half_dot_nrm, 16.f),0,1))
+   		 + (diff*lu_tc.x + _ambient)*o_color.xyz;
+    return final_light;
+    
+    //gl_FragColor.xyz = final_light;
+    
+}
+
+
+
+float LinearizeDepth(in vec2 uv)
+{
+    float zNear = 1.0f;    // TODO: Replace by the zNear of your perspective projection
+    float zFar  = 500.0f; // TODO: Replace by the zFar  of your perspective projection
+    float depth = texture(Depth, uv).x;
+	depth=depth*2-1;
+    return (2.0 * zNear) / (zFar + zNear - depth * (zFar - zNear));
+}
+float LinearizeDepth(float d)
+{
+    float zNear = 1.0f;    // TODO: Replace by the zNear of your perspective projection
+    float zFar  = 500.0f; // TODO: Replace by the zFar  of your perspective projection
+    float depth = d*2-1;
+    return (2.0 * zNear) / (zFar + zNear - depth * (zFar - zNear));
+}
+float hx(float x)
+{
+	return 3*pow(x,2)-2*pow(x,3);
+}
+
+float zoom(int j)
+{
+	return r0*j;
+}
+vec2 tran(in vec2 v2)
+{
+	vec2 vreturn=vec2(v2.x/window_size.x,v2.y/window_size.y);
+	return vreturn;
+}
+
+float Visiable(in vec2 where)
+{
+	if(LinearizeDepth(tran(where))-LinearizeDepth(tran(gl_FragCoord.xy))<0)
+		return 0;
+	else
+		return 1;
+}
+
+float gd(vec2 where,int j)
+{
+	float d_temp=texture(Depth,tran(gl_FragCoord.xy)).r-texture(Depth,tran(where)).r;
+	if(d_temp>0)
+	{
+		return 1-hx(d_temp);
+	}
+	else
+	{
+		return 0.0f;
+	}
+}
+
+float glight(vec2 where)
+{
+	vec3 H=normalize((lightDir)+normalize(view));
+	float spec=dot(H,normalize(N));
+	spec=clamp(spec,0,1);
+	spec=pow(spec,16);
+	return 1.0f-spec;
+}
+
+float count_LineAO()
+{
+	float LineAO_result=0.0f;
+	for(int i=0;i<sr;i++)
+	{
+		float temp_result=0;
+		float temp_r=zoom(i);
+		float interval=PIE_MY*float(2)/float(sh);
+		for(int j=0;j<sh;j++)
+		{
+			float x=temp_r*sin(interval*j+float(i)*PIE_MY/6.0f)+gl_FragCoord.x;
+			float y=temp_r*cos(interval*j+float(i)*PIE_MY/6.0f)+gl_FragCoord.y;
+			vec2 temp_where=vec2(x,y);
+            float g_all=gd(temp_where,i);//*glight(temp_where);
+			temp_result+=(1-Visiable(temp_where))*g_all;
+			//temp_result+=1-Visiable(temp_where);
+		}
+		temp_result/=sh;
+		LineAO_result+=temp_result;
+	}
+	return LineAO_result;
+}
+
+void main()
+{
+	vec3 this_color = o_color;
+	// col.xyzw = vec4(1,1,1,1);
+	// return;
+	if(shader_type == 0){
+		vec4 localLight2;
+		float ao_factor = 0.4f;
+		if(is_rendering_background == 0){
+			if(o_pos.z > z_filter)
+			{
+				col = vec4(0,0,0,0);
+				return;
+			}
+			ao_shadowing_radius = 1.f;
+			r0=ao_shadowing_radius*line_width;
+			vec3 _tan = normalize((mv_matrix * vec4(o_tangent, 0.f)).xyz);
+			view =  -(mv_matrix * vec4(o_pos, 1.f)).xyz;
+			//vec3 _tan = normalize(o_tangent);
+			vec3 bin = normalize(cross(_tan, view));
+			vec3 N = normalize(cross(bin, _tan));
+
+			lightDir = (lightpos + view);
+			float _distance = dot(lightDir, lightDir);
+			lightDir = normalize(lightDir);
+			float NdotL=dot((N),(lightDir));
+			NdotL=clamp(NdotL,0,1);
+			vec3 H=normalize((lightDir)+normalize(view));
+
+			float spec=dot(H,normalize(N));
+			if(spec < 1e-45f)
+				spec = 0.1f;
+			if(NdotL <1e-45f)
+				NdotL = 0.1f;
+			
+
+			this_color = vec3(1,0.6,0);
+			localLight2 = pow(spec, _exp)*lightcolor*_specular+NdotL*lightcolor*vec4(this_color, 1.f)*_diffuse;
+			vec4 allLight=lightcolor*vec4(this_color, 1.f)*_ambient;
+			localLight2+=allLight;
+			col.w = 1.f;
+		}
+		else
+		{
+			ao_shadowing_radius = 0.01f;
+			r0=ao_shadowing_radius*line_width;
+			localLight2.xyz = o_color.xyz;
+			ao_factor = 0.6f;
+			col.w = .6f;
+		}
+		clamp(localLight2.xyz, 0,1);
+		if(enable_AO == 1){
+			float LineAO2 = count_LineAO();
+
+			LineAO2=clamp(LineAO2,0,1);		
+		//	localLight2.xyz = o_color.xyz;
+			if(LineAO2 < 1.f/32.f && is_rendering_background == 0)
+			 	LineAO2 = 1./32.f;
+			if(is_rendering_background == 1 && LineAO2 >1e-7f)
+				localLight2.xyz *= .2;
+			col.xyz = (vec3(1-LineAO2)*ao_factor + 1-ao_factor) * localLight2.xyz;
+			//col.w = 1.f;//.5f;//*(1-LineAO2);
+		}
+		else{
+			col.xyz = localLight2.xyz;
+			col.w = 1.f;
+			if(o_pos.z > z_filter)
+				col.z = -2.f;
+		}
+		
+
+	}
+}
+
+

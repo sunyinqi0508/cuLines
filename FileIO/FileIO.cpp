@@ -1,3 +1,5 @@
+#include "Common.h"
+#include "Parameters.h"
 #include "Vector.h"
 #include "FileIO.h"
 #include <basetsd.h>
@@ -6,7 +8,9 @@
 using namespace std;
 namespace FileIO {
 	vector<vector<Vector3>>	streamlines;
-	Vector3 ** f_streamlines;
+	Vector3 ** f_streamlines = 0;
+	float** curvatures = 0;
+	void* clean_handle = 0, *clean_handle_d = 0;
 	int64_t n_streamlines;
 	int64_t n_points;
 	char availiblity_flag = 0;
@@ -63,11 +67,11 @@ namespace FileIO {
 			_e_res = _e_sign ? _e_res : -_e_res;
 			result *= pow(10, _e_res);
 		}
-		return result;
+		return _sign?result:-result;
 
 	}
 
-	inline void readVertex(char *&buffer) {
+	inline void readVertex(char *&buffer, int &pt) {
 
 		float _x = my_atof(buffer);
 		while (*buffer == ' ') ++buffer;
@@ -75,7 +79,8 @@ namespace FileIO {
 		while (*buffer == ' ') ++buffer;
 		float _z = my_atof(buffer);
 		while (*buffer == ' ') ++buffer;
-		streamlines.back().push_back(Vector3(_x, _y, _z));
+		if(pt%downsample_pt == 0)
+			streamlines.back().push_back(Vector3(_x, _y, _z));//-x for out2.obj
 	}
 	inline void readVertex_NG(char *&buffer, const size_t curr) {
 
@@ -89,11 +94,11 @@ namespace FileIO {
 		f_streamlines[0][curr](_x, _y, _z);
 	}
 
-	void normalize(float R, const bool _normalize, bool format) {
+	NormalizeParameter normalize(float R, const bool _normalize, bool format, Vector3 move, bool centralize) {
 
-		Vector3 max = INT_MIN, min = INT_MAX;
-		if (format == Format::STREAMLINE_VECTOR)
-		{
+		Vector3 max = -std::numeric_limits<float>::max()/4.f;
+		Vector3 min = std::numeric_limits<float>::max()/4.f;
+		if (format == Format::STREAMLINE_VECTOR) {
 			for (vector<Vector3>& line : streamlines)
 				for (Vector3& vertex : line)
 					for (int i = 0; i < 3; i++)
@@ -101,8 +106,7 @@ namespace FileIO {
 							max[i] = vertex[i];
 						else if (vertex[i] < min[i])
 							min[i] = vertex[i];
-		}
-		else
+		} else
 			for (int i = 0; i < n_streamlines; i++)
 				for (int j = 0; j < Streamline::size(i); j++)
 					for (int k = 0; k < 3; k++)
@@ -118,16 +122,23 @@ namespace FileIO {
 				interval = max[i];
 
 		interval = (_normalize ? interval : 1) * R;
-		min = _normalize ? min : Vector3(0.f);
+
+		if (centralize)
+			min += (max - min) / 2.f;
+		else {
+			min = _normalize ? min : Vector3(0.f);
+			min -= move;
+		}
 		if (format == Format::STREAMLINE_VECTOR)
 			for (vector<Vector3>&line : streamlines)
 				for (Vector3& vertex : line)
-					for (int i = 0; i < 3; i++)
-						vertex[i] = (vertex[i] - min) / interval;
+					vertex = (vertex - min) / interval;
 		else
 			for (int i = 0; i < n_streamlines; i++)
 				for (int j = 0; j < Streamline::size(i); j++)
 					f_streamlines[i][j] = (f_streamlines[i][j] - min) / interval;
+
+		return NormalizeParameter{ min, interval };
 	}
 	void scaleByR(float R, const bool _normalize, bool format)
 	{
@@ -163,9 +174,8 @@ namespace FileIO {
 		while (ptr > 0 && (buffer[ptr] != '\n'))ptr--;
 		buffer[ptr] = '\0';
 
-		f_streamlines = new Vector3*[n_lines + 1];
-
-		f_streamlines[0] = new Vector3[n_p];
+		clean_handle = f_streamlines = new Vector3*[n_lines + 1];
+		clean_handle_d = f_streamlines[0] = new Vector3[n_p];
 
 		size_t ptr_l = 0, ptr_p = 0;
 		while (*buffer) {
@@ -199,56 +209,101 @@ namespace FileIO {
 		fclose(fp);
 	}
 	void LoadWaveFrontObject(const char* file, int Max_N) {
+		reinitData();
 
 		streamlines.clear();
 		streamlines.resize(0);
-		FILE* fp;
+		FILE* fp = 0;
 		fopen_s(&fp, file, "rb");
-		fseek(fp, SEEK_SET, SEEK_END);
-		size_t file_size = ftell(fp);
-		fseek(fp, SEEK_SET, SEEK_SET);
-		char* buffer = new char[file_size];
-		char* buffer_orig = buffer;
-		fread_s(buffer, file_size, sizeof(char), file_size, fp);
-		//const size_t approx_line = (size_t)sqrt(file_size / 2);
-		//const size_t approx_path = (file_size / 25) / approx_line;
-		//streamlines.reserve(approx_line);
-		newline();
+		if (fp) {
+			fseek(fp, SEEK_SET, SEEK_END);
+			size_t file_size = ftell(fp);
+			fseek(fp, SEEK_SET, SEEK_SET);
+			char* buffer = new char[file_size];
+			char* buffer_orig = buffer;
+			fread_s(buffer, file_size, sizeof(char), file_size, fp);
+			//const size_t approx_line = (size_t)sqrt(file_size / 2);
+			//const size_t approx_path = (file_size / 25) / approx_line;
+			//streamlines.reserve(approx_line);
+			newline();
+			int pt = 0;
+			while (*buffer) {
+				bool skip = false;
+				while (*buffer&&*buffer != '\n') {
+					if (skip)
+						buffer++;
+					else if (*buffer == 'g') {
+						pt = 0;
+						newline();
+						streamlines.back().shrink_to_fit();
+						if (streamlines.size() > Max_N)
+							goto end;
+						skip = true;
+					}
+					else if (*buffer++ == 'v' && *buffer++ == ' ') {
+						//streamlines.back().push_back(readVertex(buffer));
+						readVertex(buffer, pt);
+						++pt;
+						skip = true;
+					}
+					else skip = true;
 
-		while (*buffer) {
-			bool skip = false;
-			while (*buffer&&*buffer != '\n') {
-
-				if (skip)
-					buffer++;
-				else if (*buffer == 'g') {
-					newline();
-					streamlines.back().shrink_to_fit();
-					if (streamlines.size() > Max_N)
-						goto end;
-					skip = true;
 				}
-				else if (*buffer++ == 'v' && *buffer++ == ' ') {
-					//streamlines.back().push_back(readVertex(buffer));
-					readVertex(buffer);
-					skip = true;
-				}
-				else skip = true;
-
+				if (!*buffer)
+					break;
+				buffer++;
 			}
-			if (!*buffer)
-				break;
-			buffer++;
-		}
 		end:
-		streamlines.shrink_to_fit();
-		streamlines.pop_back();
-		availiblity_flag |= 1 << Format::STREAMLINE_VECTOR;
-		//delete[]buffer_orig;
-		fclose(fp);
-
+			streamlines.shrink_to_fit();
+			streamlines.pop_back();
+			availiblity_flag |= 1 << Format::STREAMLINE_VECTOR;
+			//delete[]buffer_orig;
+			fclose(fp);
+		}
 	}
+	void gaussianSmooth(int SmoothingWindow, int _2D) {
+		Vector3** f_streamline2 = new Vector3*[n_streamlines];
+		f_streamline2[0] = new Vector3[n_points];
+		for (int i = 1; i < n_streamlines; i++) {
+			f_streamline2[i] = f_streamline2[i - 1] + Streamline::size(i - 1);
+		}
 
+		for (int j = 0; j < 160; j++) {
+			std::memcpy(f_streamline2[0], f_streamlines[0], sizeof(Vector3) * n_points);
+#pragma omp parallel
+#pragma omp  for
+			for (int i = 0; i < n_points; i++) {
+				const int this_line = Streamline::getlineof(i);
+				const int pt_on_line = i - Streamline::offsets[this_line];
+
+				int start = __macro_max(0, pt_on_line - SmoothingWindow);
+				int end = __macro_min(Streamline::size(this_line), pt_on_line + SmoothingWindow);
+				float sum_gx = 1;
+				for (int k = start; k < end; k++) {
+					const float distik = f_streamlines[0][i] - f_streamlines[this_line][k];
+					if (k != pt_on_line && !isnan(distik) && !isinf(distik)) {
+						const float gx = (float)(exp(-9. * 10./ (2.f*16.f)) / (sqrt(2 * M_PI*16.f)));
+						sum_gx += gx;
+						f_streamline2[0][i] += f_streamlines[this_line][k] * gx;
+					}
+				}
+				f_streamline2[0][i] /= sum_gx;
+			}
+			if (_2D) {
+				Vector3 center1 = 0;
+				for (int j = 0; j < 6; j++)
+					center1 += f_streamline2[j][Streamline::size(j) - 1];
+				center1 /= 6.f;
+				for (int j = 0; j < 6; j++)
+					f_streamline2[j][Streamline::size(j) - 1] = center1;
+				f_streamline2[11][0] = f_streamline2[11][Streamline::size(11) - 1] = (f_streamline2[11][Streamline::size(11) - 1] + f_streamline2[11][0]) / 2.f;
+				f_streamline2[12][0] = f_streamline2[12][Streamline::size(12) - 1] = (f_streamline2[12][Streamline::size(12) - 1] + f_streamline2[12][0]) / 2.f;
+				f_streamline2[13][0] = f_streamline2[13][Streamline::size(13) - 1] = (f_streamline2[13][Streamline::size(13) - 1] + f_streamline2[13][0]) / 2.f;
+				f_streamline2[16][0] = f_streamline2[16][Streamline::size(16) - 1] = (f_streamline2[16][Streamline::size(16) - 1] + f_streamline2[16][0]) / 2.f;
+			}
+			std::memcpy(f_streamlines[0], f_streamline2[0], sizeof(Vector3) * n_points);
+		}
+	}
 	void toFStreamlines() {
 
 		if (availiblity_flag & AvailFlags(Format::STREAMLINE_VECTOR))
@@ -257,11 +312,11 @@ namespace FileIO {
 			n_streamlines = streamlines.size();
 			n_points = 0;
 
-			f_streamlines = new Vector3*[n_streamlines + 1];
+			clean_handle = f_streamlines = new Vector3*[n_streamlines + 1];
 			for (vector<Vector3> line : streamlines)
 				n_points += line.size();
 
-			f_streamlines[0] = new Vector3[n_points];
+			clean_handle_d = f_streamlines[0] = new Vector3[n_points];
 			int ptr_fs = 1;
 			for (vector<Vector3> line : streamlines) {
 
@@ -277,24 +332,34 @@ namespace FileIO {
 		}
 	}
 
-	void OutputBSL(const char* destination) {
+	void OutputBSL(const char* destination, Format source) {
 
 		FILE *fp = 0;
 		fopen_s(&fp, destination, "wb");
-
-		int64_t _size = streamlines.size();
-		fwrite(&_size, sizeof(int64_t), 1, fp);
-		_size = 0;
-		fwrite(&_size, sizeof(int64_t), 1, fp);
-		for (vector<Vector3>& line : streamlines) {
-			_size = line.size();
+		if (source == Format::STREAMLINE_VECTOR) {
+			int64_t _size = streamlines.size();
 			fwrite(&_size, sizeof(int64_t), 1, fp);
+			_size = 0;
+			fwrite(&_size, sizeof(int64_t), 1, fp);
+			for (vector<Vector3>& line : streamlines) {
+				_size = line.size();
+				fwrite(&_size, sizeof(int64_t), 1, fp);
+			}
+
+			for (vector<Vector3>& line : streamlines)
+				for (Vector3& vertex : line)
+					fwrite(vertex, sizeof(vertex), 1, fp);
 		}
-
-		for (vector<Vector3>& line : streamlines)
-			for (Vector3& vertex : line)
-				fwrite(vertex, sizeof(vertex), 1, fp);
-
+		else {
+			fwrite(&n_streamlines, sizeof(int64_t), 1, fp);
+			int64_t _size = 0;
+			fwrite(&_size, sizeof(int64_t), 1, fp);
+			for (int i = 0; i < n_streamlines; i++) {
+				_size = Streamline::sizes[i];
+				fwrite(&_size, sizeof(int64_t), 1, fp);
+			}
+			fwrite(f_streamlines[0], sizeof(Vector3), n_points, fp);
+		}
 		fclose(fp);
 
 	}
@@ -348,30 +413,34 @@ namespace FileIO {
 
 	void ReadBSL64(const char* filename) {
 
+		reinitData();
+
 		FILE *fp;
 		fopen_s(&fp, filename, "rb");
+		if (fp)
+		{
+			void* buffer;
+			fseek(fp, SEEK_SET, SEEK_END);
+			size_t file_size = ftell(fp);
+			fseek(fp, SEEK_SET, SEEK_SET);
+			clean_handle = buffer = malloc(file_size);
 
-		void* buffer;
-		fseek(fp, SEEK_SET, SEEK_END);
-		size_t file_size = ftell(fp);
-		fseek(fp, SEEK_SET, SEEK_SET);
-		buffer = malloc(file_size);
+			fread(buffer, 1, file_size, fp);
 
-		fread(buffer, 1, file_size, fp);
-
-		n_streamlines = *((int64_t*)buffer);
-		f_streamlines = (Vector3 **)buffer + 1;
+			n_streamlines = *((int64_t*)buffer);
+			f_streamlines = (Vector3 **)buffer + 1;
 
 
-		f_streamlines[0] = (Vector3*)(f_streamlines + n_streamlines + 1);
-		for (int i = 1; i <= n_streamlines; i++)
-			f_streamlines[i] = f_streamlines[i - 1] + *((int64_t*)f_streamlines + i);
-		n_points = (file_size - sizeof(int64_t)*(n_streamlines + 2)) / sizeof(Vector3);
+			f_streamlines[0] = (Vector3*)(f_streamlines + n_streamlines + 1);
+			for (int i = 1; i <= n_streamlines; i++)
+				f_streamlines[i] = f_streamlines[i - 1] + *((int64_t*)f_streamlines + i);
+			n_points = (file_size - sizeof(int64_t)*(n_streamlines + 2)) / sizeof(Vector3);
 
+
+			fclose(fp);
+		}
 
 		Streamline::reinit();
-		fclose(fp);
-
 	}
 
 	void ReadBSL32() {
@@ -382,12 +451,73 @@ namespace FileIO {
 		sizeof(void*) == 8 ? ReadBSL64(filename) : ReadBSL32();
 	}
 
-	int* Streamline::sizes = NULL;
 
+	void _getTangent(Vector3 *tangents) {
+
+		int idx_pt = 0;
+		for (size_t i = 0; i <n_streamlines; i++)
+		{
+			for (size_t j = 0; j < Streamline::size(i); j++)
+			{
+				int idx1 = j + 1, idx2 = j - 1;
+				idx2 = idx2 < 0 ? 0 : idx2;
+				idx1 = idx1 >= Streamline::size(i) ? Streamline::size(i) - 1 : idx1;
+				tangents[idx_pt + j] = (f_streamlines[i][idx1] - f_streamlines[i][idx2]).normalized();
+			}
+
+			idx_pt += Streamline::size(i);
+		}
+	}
+
+
+	void reinitData() {
+
+		streamlines.clear();
+		if (clean_handle)
+		{
+			delete[] (clean_handle);
+			clean_handle = f_streamlines= new Vector3*[1];
+		}
+		if(clean_handle_d )
+		{
+			delete[] clean_handle_d;
+			clean_handle_d = 0;
+		}
+		n_points = 0;
+		n_streamlines = 0;
+
+	}
+
+	int getGlobalIndex(int line_idx, int pt_idx) {
+		return &f_streamlines[line_idx][pt_idx] - &f_streamlines[0][0];
+	}
+
+	int* Streamline::sizes = NULL;
 	int* Streamline::pt_to_line = NULL;
 	int* Streamline::offsets = NULL;
 
 	size_t Streamline::_max_size = 0;
+	void Streamline::initFromStreamlineData(Streamline_data * sd)
+	{
+		pt_to_line = sd->pt_to_line;
+		offsets = sd->offsets;
+		sizes = sd->sizes;
+		n_streamlines = sd->n_streamlines;
+		n_points = sd->n_points;
+		f_streamlines = sd->f_streamlines;
+		delete sd;
+	}
+	Streamline::Streamline_data * Streamline::storeIntoStreamlineData()
+	{
+		Streamline_data *ret = new Streamline_data;
+		ret->pt_to_line = pt_to_line;
+		ret->offsets = offsets;
+		ret->sizes = sizes;
+		ret->n_streamlines = n_streamlines;
+		ret->n_points = n_points;
+		ret->f_streamlines = f_streamlines;
+		return ret;
+	}
 	size_t inline Streamline::size(size_t sl_pos)
 	{
 		//if (sizes[sl_pos] < 0)
@@ -416,14 +546,25 @@ namespace FileIO {
 	}
 	inline void Streamline::reinit() {
 		if (sizes)
+		{
 			delete[] sizes;
+			sizes = 0;
+		}
 		if (pt_to_line)
+		{
 			delete[] pt_to_line;
+			pt_to_line = 0;
+		}
 		if (offsets)
+		{
 			delete[] offsets;
+			offsets = 0;
+		}
+		_max_size = 0;
+
 		sizes = new int[n_streamlines + 1];
 		offsets = new int[n_streamlines + 1];
-		pt_to_line = new int[n_points];
+		pt_to_line = new int[n_points + 1];
 
 		offsets[0] = 0;
 		//std::fill(sizes, sizes + n_streamlines - 1, -1);

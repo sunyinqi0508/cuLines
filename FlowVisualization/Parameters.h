@@ -6,7 +6,7 @@
 #define _DOWNSAMPLE
 
 
-#define _LIGHTING
+#define LIGHTING
 #define DLL_INPUT
 
 //Bug list:
@@ -24,4 +24,3 @@
 
 #endif
 
- 

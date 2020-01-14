@@ -5,7 +5,7 @@
 #include "field2d.h"
 #include "streamline.h"
 #include "Integrator.h"
-//#include <cuda.h>
+#include <cuda.h>
 
 #ifndef max
 #define max(a,b) ((a)<(b) ? (b) : (a))
@@ -41,23 +41,7 @@ struct heap_Point
 
 };
 
-extern __global__ void  CudaSimilarWithLines(
 
-	int n, //n of pts
-
-	int *lineinfo, float *h_all,  //line information
-
-	int *buckets, float *segments, //LSH
-
-	int *heap, float *val, float *variation, //outputs
-
-	int *searched, //massive tmp
-
-	int *lkd, int*id, //Kdtree
-
-	bool *pt_availablility
-
-	);
 
 class SimTester
 {

@@ -1400,7 +1400,7 @@ void CalcLineOrderThread::makeData(){
 	int *n_of_points = new int(N_p);
 
 	cudaStreamCreate(&nonBlockingCpy);
-	cudaFuncSetCacheConfig(&CudaSimilarWithLines, cudaFuncCachePreferL1);
+//	cudaFuncSetCacheConfig(&CudaSimilarWithLines, cudaFuncCachePreferL1);
 
 	DevicePointers *d_pointers = new DevicePointers(
 		nB, N_p, slotsize,

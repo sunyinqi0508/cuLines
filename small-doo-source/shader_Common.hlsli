@@ -58,4 +58,5 @@ float2 getMSAATexCoord(float2 inTex, uint sampleIndex)
 }
 
 #endif
+#define TEMPORARY_BUFFER_MAX        512
 #endif

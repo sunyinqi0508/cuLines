@@ -57,6 +57,7 @@ class ConstantBuffer
 		// Maps the CPU content to the GPU
 		void UpdateBuffer(ID3D11DeviceContext* ImmediateContext)
 		{
+			//Sleep(50);
 			if (!mBuffer) return;
 			D3D11_MAPPED_SUBRESOURCE MappedSubResource;		
 			ImmediateContext->Map(mBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedSubResource );			

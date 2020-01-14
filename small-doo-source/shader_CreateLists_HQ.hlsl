@@ -204,13 +204,14 @@ void computeColor(float2 texCoord, float3 vrcPositionNormalized, float3 vrcDirec
 	}
 	else
 	{
+		//PointColor = LineColor;
 		float4 f_ptcolor;
 		f_ptcolor.r = ((PointColor >>24)& 0xff) / 255.f;
 		f_ptcolor.g = ((PointColor >>16) & 0xff) / 255.f;
 		f_ptcolor.b = ((PointColor >>8) & 0xff) / 255.f;
 		f_ptcolor.a = 0;// ((PointColor >> 0) & 0xff) / 255.f;
 
-		float4 res = f_ptcolor;
+		float4 res = LineColor;// f_ptcolor;
 		float3 LT	= vrcPositionNormalized;
 		float3 VT	= vrcPositionNormalized;
 		float DL	= dot(vrcDirection, LT);

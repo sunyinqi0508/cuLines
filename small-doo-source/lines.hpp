@@ -267,7 +267,7 @@ private:
 		if (alpha)
 			_Importance.assign(alpha, alpha + n_points);
 		else
-			std::fill(_Importance.begin(), _Importance.end(), 0.2);
+			std::fill(_Importance.begin(), _Importance.end(), .3f);
         if(colors)
 		    _Colors.assign(colors, colors + n_points);
         else
@@ -280,10 +280,11 @@ private:
 		}
 
 #else 
-		std::ifstream myfile(path);
+		std::ifstream myfile("d:/flow_data/out2.obj");
 
 		if (myfile.is_open())
 		{
+			printf("succeed");
 			std::string line;
 			while (myfile.good())
 			{

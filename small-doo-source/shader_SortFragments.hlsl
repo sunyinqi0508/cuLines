@@ -60,7 +60,6 @@ struct QuadPS_Input
 
 // Max hardcoded.
 // We're in trouble if the fragment linked list is larger than this...
-#define TEMPORARY_BUFFER_MAX        256
 
 void PS( QuadPS_Input input )
 {   

@@ -60,7 +60,7 @@ struct QuadPS_Input
 };
 
 // Max hardcoded.
-#define TEMPORARY_BUFFER_MAX        256
+
 
 void PS( QuadPS_Input input )
 {    

@@ -422,6 +422,7 @@ class Renderer
 			}
 #pragma endregion
 			// -------------------------------------------
+			ImmediateContext->Flush();
 
 			// -------------------------------------------
 #pragma region Sort the fragments - low res
@@ -447,6 +448,7 @@ class Renderer
 			}
 #pragma endregion
 			// -------------------------------------------
+			ImmediateContext->Flush();
 
 			// -------------------------------------------
 #pragma region Min gather of alpha values
@@ -479,7 +481,7 @@ class Renderer
 			}
 #pragma endregion
 			// -------------------------------------------
-
+			ImmediateContext->Flush();
 			// -------------------------------------------
 #pragma region Smoothing
 			{
@@ -532,6 +534,7 @@ class Renderer
 			}
 #pragma endregion
 			// -------------------------------------------
+			ImmediateContext->Flush();
 
 			// -------------------------------------------
 #pragma region Fade the current alpha solution per vertex
@@ -566,6 +569,7 @@ class Renderer
 			}
 #pragma endregion
 			// -------------------------------------------
+			ImmediateContext->Flush();
 
 			// switch to full viewport
 			ImmediateContext->RSSetViewports(1, &fullViewport);
@@ -610,6 +614,7 @@ class Renderer
 			}
 #pragma endregion
 			// -------------------------------------------
+			ImmediateContext->Flush();
 
 			// -------------------------------------------
 #pragma region Sort the fragments
@@ -637,6 +642,7 @@ class Renderer
 			}
 #pragma endregion
 			// -------------------------------------------
+			ImmediateContext->Flush();
 
 			// -------------------------------------------
 #pragma region Render the fragments
@@ -659,6 +665,7 @@ class Renderer
 				ImmediateContext->OMSetRenderTargets(1, rtvs, D3D->GetDsvBackbuffer());
 			}
 #pragma endregion
+			ImmediateContext->Flush();
 			// -------------------------------------------
 		}
 

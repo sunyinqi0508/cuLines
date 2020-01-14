@@ -62,7 +62,7 @@ void Render()
 
 	// Render the scene with decoupled opacity optimization
 	g_Renderer->Draw(immediateContext, g_D3D, g_Lines, g_Camera);
-
+	//printf("render\n");
 	// Swap
 	g_D3D->GetSwapChain()->Present(0, 0);
 }
@@ -95,29 +95,29 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	std::string path;
 	Vec3f eye, lookAt;
-	Vec2i resolution(700, 700);
+	Vec2i resolution(1200, 1200);
 	float q, r, lambda, stripWidth;
 	int totalNumCPs, smoothingIterations;
-	//datasetIndex = 1;
+	datasetIndex = 0;
 	switch (datasetIndex)
 	{
 	default:
 	case 0:
-		path = std::string("data/tornado.obj");
-		//eye = Vec3f(30, 30, 30);
-		//lookAt = Vec3f(10, 10, 10);
-		//q = 100;
-		//r = 500;
-		//lambda = 1.5;
-		//stripWidth = 0.07f;
-		eye = Vec3f(11, 21, -25);
+		path = std::string("data\\tornado.obj");
+		eye = Vec3f(28, 42, 42);
 		lookAt = Vec3f(10, 10, 10);
-		q = 60;
+		q = 100;
 		r = 500;
-		lambda = 1;
-		stripWidth = 0.05f;
+		lambda = 1.5;
+		stripWidth = 0.03f;
 
-		totalNumCPs = 10000;
+		//eye = Vec3f(11, 21, -25);
+		//lookAt = Vec3f(10, 10, 10);
+		//q = 60;
+		//r = 500;
+		//lambda = 1;
+		//stripWidth = 0.05f;
+		totalNumCPs = 1000000;
 		smoothingIterations = 10;
 		break;
 	case 1:
@@ -191,8 +191,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		// update the camera
 		g_Camera->Update(elapsedS);
+		//if (g_Camera->Update(elapsedS))
+			Render();
 		// render the scene
-		Render();
+		//Render();
 
 		printf("\rfps: %i      ", (int)(1.0 / elapsedS));
 	}

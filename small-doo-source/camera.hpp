@@ -25,8 +25,8 @@ public:
 		mLastX(0),
 		mLastY(0),
 		mDamping(1.0f),
-		mNear(0.0000001f),
-		mFar(10000000),
+		mNear(0.0001f),
+		mFar(100000),
 		mPhi(0),
 		mTheta(0),
 		hWnd(hWnd)
@@ -53,9 +53,10 @@ public:
 		mParam.Release();
 	}
 
-	void Update(double elapsedTime)
+	bool Update(double elapsedTime)
 	{
 		bool window_has_focus = GetActiveWindow() == hWnd;
+		bool updated = false;
 		if (window_has_focus)
 		{
 			float y = (float)((GetAsyncKeyState('W') < 0) - (GetAsyncKeyState('S') < 0)) * mMoveStep * (float)elapsedTime;
@@ -66,6 +67,7 @@ public:
 				XMVECTOR dir = XMVector3Normalize(lookAt - eye);
 				eye = eye + dir * y;
 				XMStoreFloat3(&mPosition, eye);
+				updated = true;
 			}
 		}
 		POINT arg;
@@ -103,16 +105,20 @@ public:
 					XMStoreFloat3(&mPosition, eye);
 					UpdateViewMatrix();
 					SetCursorPos(mLastX, mLastY);
+					updated = true;
 				}
 			}
 			else
 			{
 				mLastX = arg.x;
 				mLastY = arg.y;
+				//updated = true;
+
 			}
 		}
 		UpdateViewMatrix();
 		UpdateProjMatrix();
+		return updated;
 	}
 	
 	ConstantBuffer<CbParam>& GetParams() { return mParam; }

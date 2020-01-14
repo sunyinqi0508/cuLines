@@ -116,6 +116,9 @@
     <CustomBuild Include="ColorPicker.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="ILines\Vector.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Field2D.h">
@@ -128,9 +131,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Integrator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SimTester.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="streamline.h">
@@ -157,9 +157,6 @@
     <ClInclude Include="ILines\ShaderProgram.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ILines\Vector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CudaVariableStruct.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -173,6 +170,9 @@
     </CudaCompile>
     <CudaCompile Include="CalcLineOrderThread.cu">
       <Filter>Source Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="SimTester.h">
+      <Filter>Generated Files</Filter>
     </CudaCompile>
   </ItemGroup>
 </Project>

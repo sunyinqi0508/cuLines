@@ -23,7 +23,7 @@ public:
 #ifdef _DEBUG
 		createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
-
+		createDeviceFlags |= D3D11_CREATE_DEVICE_DISABLE_GPU_TIMEOUT;
 		D3D_DRIVER_TYPE driverTypes[] =
 		{
 			D3D_DRIVER_TYPE_UNKNOWN,

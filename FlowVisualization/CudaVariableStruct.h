@@ -5,6 +5,7 @@
 #include <set>
 #include <mutex>
 #include <queue>
+#include <vector_types.h>
 //#include <KD.h>
 
 #define SAVED_TREES 128
